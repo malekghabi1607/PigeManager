@@ -154,27 +154,6 @@
   background: rgba(255, 255, 255, 0.14);
 }
 
-.sidebar .fullscreen-button {
-  width: 100%;
-  border-color: rgba(255, 255, 255, 0.35);
-  color: #eef3fc;
-  background: transparent;
-}
-
-.fullscreen-floating {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 20;
-}
-
-.fullscreen-error {
-  display: block;
-  margin-top: 6px;
-  color: #fca5a5;
-  font-size: 12px;
-}
-
 .app-content {
   min-width: 0;
 }
@@ -188,7 +167,6 @@
 
 /* ---------- Boutons ---------- */
 
-.fullscreen-button,
 .primary-button,
 .secondary-button,
 .danger-button,
@@ -207,7 +185,6 @@
   transition: background 0.15s, border-color 0.15s;
 }
 
-.fullscreen-button,
 .secondary-button,
 .coffret-button {
   border-color: var(--border);
@@ -939,23 +916,12 @@ tfoot td {
     font-size: 18px;
   }
 
-  .sidebar .fullscreen-button {
-    width: 48px;
-    padding: 0;
-    font-size: 0;
-  }
-
-  .sidebar .fullscreen-button::before {
-    content: "⛶";
-    font-size: 18px;
-  }
-
   .control-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .stats-panel {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

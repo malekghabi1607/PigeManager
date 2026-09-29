@@ -44,7 +44,6 @@ function CoffretPage({ coffret, utilisateur, onBack }: CoffretPageProps) {
       total: piges.length,
       ok: piges.length - aCommander.length,
       aCommander: aCommander.length,
-      quantite: aCommander.reduce((sum, pige) => sum + pige.quantite_manquante, 0),
     }
   }, [piges])
 
@@ -118,10 +117,6 @@ function CoffretPage({ coffret, utilisateur, onBack }: CoffretPageProps) {
             <article>
               <span>Piges a commander</span>
               <strong className="bad">{stats.aCommander}</strong>
-            </article>
-            <article>
-              <span>Quantite totale</span>
-              <strong className="warn">{stats.quantite}</strong>
             </article>
           </aside>
 

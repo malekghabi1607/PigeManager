@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import logo from '../assets/logo.svg'
 import type { Utilisateur } from '../types/api'
-import FullscreenButton from './FullscreenButton'
 
 type NavView = 'accueil' | 'besoins' | 'historique'
 
@@ -90,7 +89,6 @@ function AppShell({ activeView, children, utilisateur, onNavigate, onChangeUtili
               <svg {...iconProps}><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10" /></svg>
             </button>
           </div>
-          <FullscreenButton />
         </div>
       </aside>
       <div className="app-content">{children}</div>

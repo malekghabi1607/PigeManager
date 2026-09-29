@@ -37,15 +37,13 @@ function ConnexionPage({ onConnected }: ConnexionPageProps) {
     <main className="screen">
       <PageHeader eyebrow="PigeControl" title="Connexion atelier" />
       <form className="login-panel" onSubmit={handleSubmit}>
-        <label>
-          Nom controleur
-          <input
-            value={nom}
-            onChange={(event) => setNom(event.target.value)}
-            placeholder="Malek"
-            autoComplete="name"
-          />
-        </label>
+        <input
+          value={nom}
+          onChange={(event) => setNom(event.target.value)}
+          placeholder="Votre nom"
+          aria-label="Votre nom"
+          autoComplete="name"
+        />
 
         <Button variant="primary" type="submit" disabled={isLoading}>
           {isLoading ? 'Connexion...' : 'Commencer'}

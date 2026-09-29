@@ -20,10 +20,7 @@ function Accueil({ coffrets, isLoading, error, onSelectCoffret }: AccueilProps) 
 
   return (
     <main className="screen">
-      <PageHeader
-        eyebrow="PigeControl"
-        title="Sélection du coffret"
-      />
+      <PageHeader title="Sélection du coffret" />
 
       <StateMessage>{isLoading ? 'Chargement des coffrets...' : undefined}</StateMessage>
       <StateMessage variant="error">{error}</StateMessage>

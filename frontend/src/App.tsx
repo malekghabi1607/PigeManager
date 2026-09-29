@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import AppShell from './components/AppShell'
-import FullscreenButton from './components/FullscreenButton'
 import Accueil from './pages/Accueil'
 import BesoinPage from './pages/BesoinPage'
 import CoffretPage from './pages/CoffretPage'
@@ -42,14 +41,7 @@ function App() {
   }
 
   if (!utilisateur) {
-    return (
-      <>
-        <div className="fullscreen-floating">
-          <FullscreenButton />
-        </div>
-        <ConnexionPage onConnected={setUtilisateur} />
-      </>
-    )
+    return <ConnexionPage onConnected={setUtilisateur} />
   }
 
   if (view === 'besoins') {
