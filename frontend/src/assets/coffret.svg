@@ -1,16 +1,35 @@
 <svg width="220" height="140" viewBox="0 0 220 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="38" y="42" width="144" height="64" rx="10" fill="#172b42"/>
-  <path d="M46 44h128l-16-24H62L46 44Z" fill="#214463"/>
-  <path d="M62 20h96l-12 18H74L62 20Z" fill="#0e1f31"/>
-  <rect x="50" y="52" width="120" height="40" rx="5" fill="#0a1726"/>
-  <g fill="#6c7f91">
-    <circle cx="64" cy="62" r="2"/><circle cx="76" cy="62" r="2"/><circle cx="88" cy="62" r="2"/><circle cx="100" cy="62" r="2"/><circle cx="112" cy="62" r="2"/><circle cx="124" cy="62" r="2"/><circle cx="136" cy="62" r="2"/><circle cx="148" cy="62" r="2"/>
-    <circle cx="64" cy="74" r="2"/><circle cx="76" cy="74" r="2"/><circle cx="88" cy="74" r="2"/><circle cx="100" cy="74" r="2"/><circle cx="112" cy="74" r="2"/><circle cx="124" cy="74" r="2"/><circle cx="136" cy="74" r="2"/><circle cx="148" cy="74" r="2"/>
-    <circle cx="64" cy="86" r="2"/><circle cx="76" cy="86" r="2"/><circle cx="88" cy="86" r="2"/><circle cx="100" cy="86" r="2"/><circle cx="112" cy="86" r="2"/><circle cx="124" cy="86" r="2"/><circle cx="136" cy="86" r="2"/><circle cx="148" cy="86" r="2"/>
+  <defs>
+    <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#21466f"/>
+      <stop offset="1" stop-color="#0f2540"/>
+    </linearGradient>
+    <linearGradient id="bord" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4b78a8"/>
+      <stop offset="1" stop-color="#2c5584"/>
+    </linearGradient>
+    <linearGradient id="argent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8e9aa8"/>
+      <stop offset="0.4" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#9aa6b3"/>
+    </linearGradient>
+    <g id="pige">
+      <ellipse cx="0" cy="0" rx="3.6" ry="1.5" fill="#030a14"/>
+      <rect x="-2.5" y="-16" width="5" height="16" rx="1.2" fill="url(#argent)"/>
+      <ellipse cx="0" cy="-15.6" rx="2.5" ry="1.1" fill="#ffffff"/>
+    </g>
+  </defs>
+  <ellipse cx="116" cy="124" rx="90" ry="9" fill="#0f2540" opacity="0.18"/>
+  <path d="M180 70 200 45v45l-20 25V70Z" fill="#0c1f36"/>
+  <rect x="30" y="70" width="150" height="45" rx="3" fill="url(#face)"/>
+  <path d="M30 70h150l20-25H50L30 70Z" fill="url(#bord)"/>
+  <path d="M37 67h140l17-20H54L37 67Z" fill="#0a1728"/>
+  <g>
+    <use href="#pige" x="62" y="50"/><use href="#pige" x="76" y="50"/><use href="#pige" x="90" y="50"/><use href="#pige" x="104" y="50"/><use href="#pige" x="118" y="50"/><use href="#pige" x="132" y="50"/><use href="#pige" x="146" y="50"/><use href="#pige" x="160" y="50"/><use href="#pige" x="174" y="50"/>
+    <use href="#pige" x="55" y="57"/><use href="#pige" x="69" y="57"/><use href="#pige" x="83" y="57"/><use href="#pige" x="97" y="57"/><use href="#pige" x="111" y="57"/><use href="#pige" x="125" y="57"/><use href="#pige" x="139" y="57"/><use href="#pige" x="153" y="57"/><use href="#pige" x="167" y="57"/>
+    <use href="#pige" x="48" y="64"/><use href="#pige" x="62" y="64"/><use href="#pige" x="76" y="64"/><use href="#pige" x="90" y="64"/><use href="#pige" x="104" y="64"/><use href="#pige" x="118" y="64"/><use href="#pige" x="132" y="64"/><use href="#pige" x="146" y="64"/><use href="#pige" x="160" y="64"/>
   </g>
-  <rect x="88" y="100" width="44" height="8" rx="4" fill="#2677d9"/>
-  <rect x="30" y="104" width="160" height="14" rx="7" fill="#0d2135"/>
-  <path d="M54 118h112" stroke="#2b91ff" stroke-width="3" stroke-linecap="round"/>
-  <ellipse cx="110" cy="124" rx="74" ry="8" fill="#dce8f5"/>
+  <path d="M30 71h150" stroke="#6f9bd0" stroke-width="1.5"/>
+  <rect x="82" y="84" width="46" height="16" rx="4" fill="#0a1a2e" stroke="#3f6c9e"/>
+  <path d="M90 92h30" stroke="#2b91ff" stroke-width="3" stroke-linecap="round"/>
 </svg>
-

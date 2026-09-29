@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import coffretImage from '../assets/coffret.svg'
 import type { Coffret } from '../types/api'
 import { PageHeader, StateMessage } from '../components/ui'
-import { nomCourtCoffret, rechercherCoffrets } from '../utils/rechercheCoffret'
+import { rechercherCoffrets } from '../utils/rechercheCoffret'
 
 type AccueilProps = {
   coffrets: Coffret[]
@@ -53,7 +53,7 @@ function Accueil({ coffrets, isLoading, error, onSelectCoffret }: AccueilProps) 
             onClick={() => onSelectCoffret(coffret)}
           >
             <img src={coffretImage} alt="" />
-            <strong className="coffret-card-title">{nomCourtCoffret(coffret.nom)}</strong>
+            <strong className="coffret-card-title">{coffret.nom}</strong>
             <span className="coffret-card-count">{coffret.total_piges} pièces</span>
           </button>
         ))}
