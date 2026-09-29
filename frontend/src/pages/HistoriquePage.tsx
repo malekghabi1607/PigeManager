@@ -238,7 +238,7 @@ function HistoriquePage({ onBack }: HistoriquePageProps) {
   return (
     <main className="screen">
       <PageHeader
-        eyebrow="Controle"
+        eyebrow="Contrôle"
         title="Historique des controles"
         left={<Button variant="secondary" onClick={onBack}>Retour</Button>}
         right={<span className="count-badge">{passages.length}</span>}

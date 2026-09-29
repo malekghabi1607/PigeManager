@@ -106,7 +106,7 @@ function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
   return (
     <main className="screen">
       <PageHeader
-        eyebrow="Reapprovisionnement"
+        eyebrow="Réapprovisionnement"
         title="Pieces a commander"
         left={<Button variant="secondary" onClick={onBack}>Retour</Button>}
         right={<span className="count-badge">{activeBesoins.length}</span>}
