@@ -36,6 +36,11 @@ function App() {
     setView('coffret')
   }
 
+  const changeUtilisateur = () => {
+    setUtilisateur(undefined)
+    setView('accueil')
+  }
+
   if (!utilisateur) {
     return (
       <>
@@ -50,7 +55,7 @@ function App() {
   if (view === 'besoins') {
     return (
       <>
-        <AppShell activeView={view} utilisateur={utilisateur} onNavigate={navigate}>
+        <AppShell activeView={view} utilisateur={utilisateur} onNavigate={navigate} onChangeUtilisateur={changeUtilisateur}>
           <BesoinPage
             utilisateur={utilisateur}
             onBack={() => setView(selectedCoffret ? 'coffret' : 'accueil')}
@@ -63,7 +68,7 @@ function App() {
   if (view === 'historique') {
     return (
       <>
-        <AppShell activeView={view} utilisateur={utilisateur} onNavigate={navigate}>
+        <AppShell activeView={view} utilisateur={utilisateur} onNavigate={navigate} onChangeUtilisateur={changeUtilisateur}>
           <HistoriquePage onBack={() => setView('accueil')} />
         </AppShell>
       </>
@@ -73,7 +78,7 @@ function App() {
   if (view === 'coffret' && selectedCoffret) {
     return (
       <>
-        <AppShell activeView={view} utilisateur={utilisateur} onNavigate={navigate}>
+        <AppShell activeView={view} utilisateur={utilisateur} onNavigate={navigate} onChangeUtilisateur={changeUtilisateur}>
           <CoffretPage
             coffret={selectedCoffret}
             utilisateur={utilisateur}
@@ -86,7 +91,7 @@ function App() {
 
   return (
     <>
-      <AppShell activeView={view} utilisateur={utilisateur} onNavigate={navigate}>
+      <AppShell activeView={view} utilisateur={utilisateur} onNavigate={navigate} onChangeUtilisateur={changeUtilisateur}>
         <Accueil
           coffrets={coffrets}
           isLoading={isLoading}
