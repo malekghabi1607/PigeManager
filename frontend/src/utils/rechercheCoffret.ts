@@ -1,33 +1,51 @@
 import type { Coffret } from '../types/api'
 
-const nombre = String.raw`\d+(?:[.,]\d+)?`
-const plage = new RegExp(`^(${nombre})(?:\\s*[àa/–-]\\s*|\\s+)(${nombre})$`, 'i')
+const nombres = /\d+(?:[.,]\d+)?/g
 
+function lireNombres(texte: string): number[] {
+  return (texte.match(nombres) ?? []).map((valeur) => Number(valeur.replace(',', '.')))
+}
+
+// Bornes envoyees par l'API ; a defaut (ancienne API), celles ecrites dans le nom.
+function plageCoffret(coffret: Coffret): [number, number] | undefined {
+  if (coffret.code_debut != null && coffret.code_fin != null) {
+    return [coffret.code_debut, coffret.code_fin]
+  }
+  const valeurs = lireNombres(coffret.nom)
+  return valeurs.length >= 2 ? [Math.min(...valeurs), Math.max(...valeurs)] : undefined
+}
+
+// "1 à 2", "1-2", "10 à 10.5" : plage. "12.34" ou "1 à" (en cours de saisie) : un code.
 export function rechercherCoffrets(coffrets: Coffret[], saisie: string): Coffret[] {
   const recherche = saisie.trim()
   if (!recherche) return [...coffrets]
 
-  const bornes = recherche.match(plage)
-  if (bornes) {
-    const valeurs = bornes.slice(1).map((valeur) => Number(valeur.replace(',', '.')))
-    const debut = Math.min(...valeurs)
-    const fin = Math.max(...valeurs)
-    const estExact = (coffret: Coffret) => coffret.code_debut === debut && coffret.code_fin === fin
-    return coffrets
-      .filter((coffret) => coffret.code_debut !== null && coffret.code_fin !== null &&
-        (estExact(coffret) || Math.max(coffret.code_debut, debut) < Math.min(coffret.code_fin, fin)))
-      .sort((a, b) => Number(estExact(b)) - Number(estExact(a)))
+  const valeurs = lireNombres(recherche)
+  if (valeurs.length === 0) {
+    return coffrets.filter((coffret) => coffret.nom.toLowerCase().includes(recherche.toLowerCase()))
   }
 
-  if (new RegExp(`^${nombre}$`).test(recherche)) {
-    const code = Number(recherche.replace(',', '.'))
-    return coffrets.filter((coffret) => coffret.code_debut !== null && coffret.code_fin !== null &&
-      coffret.code_debut <= code && code <= coffret.code_fin)
+  if (valeurs.length === 1) {
+    const [code] = valeurs
+    return coffrets.filter((coffret) => {
+      const bornes = plageCoffret(coffret)
+      return bornes !== undefined && bornes[0] <= code && code <= bornes[1]
+    })
   }
 
-  // Les saisies numeriques incompletes ne correspondent a aucune plage.
-  if (/\d/.test(recherche)) return []
-  return coffrets.filter((coffret) => coffret.nom.toLowerCase().includes(recherche.toLowerCase()))
+  const debut = Math.min(valeurs[0], valeurs[1])
+  const fin = Math.max(valeurs[0], valeurs[1])
+  const estExact = (coffret: Coffret) => {
+    const bornes = plageCoffret(coffret)
+    return bornes !== undefined && bornes[0] === debut && bornes[1] === fin
+  }
+  return coffrets
+    .filter((coffret) => {
+      const bornes = plageCoffret(coffret)
+      return bornes !== undefined &&
+        (estExact(coffret) || Math.max(bornes[0], debut) < Math.min(bornes[1], fin))
+    })
+    .sort((a, b) => Number(estExact(b)) - Number(estExact(a)))
 }
 
 // Les noms sont en majuscules dans la base : on les affiche en ecriture normale.
