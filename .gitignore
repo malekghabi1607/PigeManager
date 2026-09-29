@@ -1,0 +1,36 @@
+# Dependances et fichiers generes
+node_modules/
+dist/
+.venv/
+.venv-win/
+venv/
+__pycache__/
+*.py[cod]
+*.tsbuildinfo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Donnees locales et sauvegardes
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.bak
+
+# Secrets et configuration locale
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Journaux et outils locaux
+.run/
+*.log
+.agents/
+.codex/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,6 @@
+fastapi
+openpyxl
+pandas
+reportlab
+sqlalchemy
+uvicorn[standard]
