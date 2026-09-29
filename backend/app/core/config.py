@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 from pathlib import Path
 
 
@@ -18,6 +19,11 @@ class Settings:
 
     @property
     def database_url(self) -> str:
+        url = os.environ.get("DATABASE_URL", "").strip()
+        if url:
+            if url.startswith(("postgres://", "postgresql://")):
+                return "postgresql+psycopg://" + url.split("://", 1)[1]
+            return url
         return f"sqlite:///{self.database_path}"
 
 

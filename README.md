@@ -2,6 +2,8 @@
 
 Application de suivi des piges : coffrets, quantités manquantes, historique des contrôles et lots de commande exportables en Excel/PDF.
 
+Hebergement gratuit : voir [DEPLOYMENT.md](DEPLOYMENT.md) pour Render et Neon.
+
 ## Lancement sous Windows
 
 Depuis la racine du projet, dans deux terminaux PowerShell :

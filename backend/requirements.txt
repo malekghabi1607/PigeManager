@@ -1,6 +1,7 @@
 fastapi
 openpyxl
 pandas
+psycopg[binary]>=3.2,<4
 reportlab
 sqlalchemy
 uvicorn[standard]

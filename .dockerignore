@@ -1,0 +1,16 @@
+.git
+.run
+.vscode
+.agents
+.codex
+**/node_modules
+**/dist
+**/.venv*
+**/__pycache__
+**/*.pyc
+**/*.db
+**/*.db-*
+**/*.sqlite*
+**/.env
+**/.env.*
+**/*.log

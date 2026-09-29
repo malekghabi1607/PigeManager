@@ -11,10 +11,11 @@ import type {
   UtilisateurPayload,
 } from '../types/api'
 
-// Meme machine que la page, port 8000 : marche sur le Mac (127.0.0.1)
-// comme depuis un telephone du reseau Wi-Fi (192.168.x.x).
+// En production, l'interface et l'API sont servies sur la meme origine HTTPS.
+// En developpement, Vite utilise le backend sur le port 8000.
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? `${window.location.protocol}//${window.location.hostname}:8000`
+  import.meta.env.VITE_API_BASE_URL ??
+  (import.meta.env.PROD ? '' : `${window.location.protocol}//${window.location.hostname}:8000`)
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {

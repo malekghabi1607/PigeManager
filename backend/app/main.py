@@ -1,8 +1,11 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+import os
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app import models
 from app.api import router
@@ -32,3 +35,8 @@ app.include_router(router)
 @app.get("/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok"}
+
+
+# In the deployment image, serve React after all API routes.
+if static_dir := os.environ.get("STATIC_DIR"):
+    app.mount("/", StaticFiles(directory=Path(static_dir), html=True), name="frontend")
