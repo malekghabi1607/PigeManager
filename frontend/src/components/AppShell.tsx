@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import logo from '../assets/logo.svg'
+import { IconeAjouter, IconeReset } from './ui'
 
 type NavView = 'accueil' | 'besoins' | 'historique'
 
@@ -7,6 +8,8 @@ type AppShellProps = {
   activeView: string
   children: ReactNode
   onNavigate: (view: NavView) => void
+  onAjouterCoffret?: () => void
+  onReset?: () => void
 }
 
 const iconProps = {
@@ -40,7 +43,7 @@ const navItems: { view: NavView; label: string; icon: ReactNode }[] = [
 // Le controle d'un coffret se fait depuis l'accueil : il reste rattache a "Accueil".
 const navViewFor = (view: string) => (view === 'coffret' ? 'accueil' : view)
 
-function AppShell({ activeView, children, onNavigate }: AppShellProps) {
+function AppShell({ activeView, children, onNavigate, onAjouterCoffret, onReset }: AppShellProps) {
   const currentView = navViewFor(activeView)
 
   return (
@@ -66,6 +69,18 @@ function AppShell({ activeView, children, onNavigate }: AppShellProps) {
               <span className="nav-label">{item.label}</span>
             </button>
           ))}
+          {activeView === 'accueil' && onAjouterCoffret && (
+            <button type="button" onClick={onAjouterCoffret} title="Ajouter un coffret" aria-label="Ajouter un coffret">
+              <span className="nav-icon"><IconeAjouter /></span>
+              <span className="nav-label">Ajouter</span>
+            </button>
+          )}
+          {activeView === 'accueil' && onReset && (
+            <button type="button" onClick={onReset} title="Tout remettre à zéro" aria-label="Tout remettre à zéro">
+              <span className="nav-icon"><IconeReset /></span>
+              <span className="nav-label">Reset</span>
+            </button>
+          )}
         </nav>
       </aside>
       <div className="app-content">{children}</div>

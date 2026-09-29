@@ -1,10 +1,9 @@
-import { useMemo, useState } from 'react'
 import coffretImage from '../assets/coffret.svg'
 import AjoutCoffretDialog from '../components/AjoutCoffretDialog'
 import ResetDialog from '../components/ResetDialog'
 import type { Coffret, Utilisateur } from '../types/api'
-import { Button, IconeAjouter, IconeReset, PageHeader, StateMessage, useToast } from '../components/ui'
-import { afficherNomCoffret, decouperNomCoffret, rechercherCoffrets } from '../utils/rechercheCoffret'
+import { PageHeader, StateMessage, useToast } from '../components/ui'
+import { afficherNomCoffret, decouperNomCoffret } from '../utils/rechercheCoffret'
 
 type AccueilProps = {
   coffrets: Coffret[]
@@ -13,17 +12,15 @@ type AccueilProps = {
   error?: string
   onSelectCoffret: (coffret: Coffret) => void
   onCoffretCree: (coffret: Coffret) => void
+  isAjoutOpen: boolean
+  isResetOpen: boolean
+  onFermerAjout: () => void
+  onFermerReset: () => void
 }
 
-function Accueil({ coffrets, utilisateur, isLoading, error, onSelectCoffret, onCoffretCree }: AccueilProps) {
-  const [search, setSearch] = useState('')
-  const [isAjoutOpen, setIsAjoutOpen] = useState(false)
-  const [isResetOpen, setIsResetOpen] = useState(false)
+function Accueil({ coffrets, utilisateur, isLoading, error, onSelectCoffret, onCoffretCree,
+  isAjoutOpen, isResetOpen, onFermerAjout, onFermerReset }: AccueilProps) {
   const { toastElement, showToast } = useToast()
-  const filteredCoffrets = useMemo(
-    () => rechercherCoffrets(coffrets, search),
-    [coffrets, search],
-  )
 
   return (
     <main className="screen">
@@ -32,42 +29,12 @@ function Accueil({ coffrets, utilisateur, isLoading, error, onSelectCoffret, onC
       <StateMessage>{isLoading ? 'Chargement des coffrets...' : undefined}</StateMessage>
       <StateMessage variant="error">{error}</StateMessage>
 
-      <div className="search-row">
-        <Button
-          variant="danger"
-          className="icon-only"
-          onClick={() => setIsResetOpen(true)}
-          aria-label="Tout remettre à zéro"
-          title="Tout remettre à zéro"
-        >
-          <IconeReset />
-        </Button>
-        <div className="search-bar">
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            aria-label="Rechercher un coffret par nom, numéro ou plage"
-            placeholder="Ex. : 1 à 2, 10 à 10.5, 12.34…"
-          />
-          <span>⌕</span>
-        </div>
-        <Button
-          variant="primary"
-          className="icon-only"
-          onClick={() => setIsAjoutOpen(true)}
-          aria-label="Ajouter un coffret"
-          title="Ajouter un coffret"
-        >
-          <IconeAjouter />
-        </Button>
-      </div>
-
       <StateMessage>
-        {!isLoading && !error && filteredCoffrets.length === 0 ? 'Aucun coffret ne correspond à votre recherche.' : undefined}
+        {!isLoading && !error && coffrets.length === 0 ? 'Aucun coffret disponible. Ajoutez un coffret pour commencer.' : undefined}
       </StateMessage>
 
       <div className="coffret-list">
-        {filteredCoffrets.map((coffret) => {
+        {coffrets.map((coffret) => {
           const { libelle, plage } = decouperNomCoffret(coffret.nom)
           return (
             <button
@@ -89,7 +56,7 @@ function Accueil({ coffrets, utilisateur, isLoading, error, onSelectCoffret, onC
 
       <AjoutCoffretDialog
         open={isAjoutOpen}
-        onClose={() => setIsAjoutOpen(false)}
+        onClose={onFermerAjout}
         onCree={(coffret) => {
           onCoffretCree(coffret)
           showToast(`${afficherNomCoffret(coffret.nom)} créé : ${coffret.total_piges} piges.`)
@@ -98,9 +65,9 @@ function Accueil({ coffrets, utilisateur, isLoading, error, onSelectCoffret, onC
       <ResetDialog
         open={isResetOpen}
         utilisateurId={utilisateur.id}
-        onClose={() => setIsResetOpen(false)}
+        onClose={onFermerReset}
         onReset={(resultat) => {
-          setIsResetOpen(false)
+          onFermerReset()
           showToast(`${resultat.piges} ${resultat.piges > 1 ? 'piges remises' : 'pige remise'} à zéro.`)
         }}
       />

@@ -25,6 +25,8 @@ function App() {
   const [acces, setAcces] = useState<Acces>(aUnJeton() ? 'ouvert' : 'verification')
   const [messageAcces, setMessageAcces] = useState<string>()
   const [view, setView] = useState<View>('accueil')
+  const [isAjoutOpen, setIsAjoutOpen] = useState(false)
+  const [isResetOpen, setIsResetOpen] = useState(false)
   const [coffrets, setCoffrets] = useState<Coffret[]>([])
   const [selectedCoffret, setSelectedCoffret] = useState<Coffret>()
   const [utilisateur, setUtilisateur] = useState<Utilisateur>()
@@ -60,6 +62,8 @@ function App() {
   }, [acces])
 
   const navigate = (nextView: View) => {
+    setIsAjoutOpen(false)
+    setIsResetOpen(false)
     setView(nextView === 'coffret' && !selectedCoffret ? 'accueil' : nextView)
   }
 
@@ -135,8 +139,17 @@ function App() {
   }
 
   return (
-    <AppShell activeView={view} onNavigate={navigate}>
+    <AppShell
+      activeView={view}
+      onNavigate={navigate}
+      onAjouterCoffret={() => setIsAjoutOpen(true)}
+      onReset={() => setIsResetOpen(true)}
+    >
       <Accueil
+        isAjoutOpen={isAjoutOpen}
+        isResetOpen={isResetOpen}
+        onFermerAjout={() => setIsAjoutOpen(false)}
+        onFermerReset={() => setIsResetOpen(false)}
         coffrets={coffrets}
         utilisateur={utilisateur}
         isLoading={isLoading}

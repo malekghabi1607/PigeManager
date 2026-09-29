@@ -1,72 +1,46 @@
-# PigeManager / PigeControl
+﻿# PigeManager
 
-Application de suivi des piges : coffrets, quantités manquantes, historique des contrôles et lots de commande exportables en Excel/PDF.
+**Gestion des coffrets de piges et suivi du réapprovisionnement.**
 
-Hebergement gratuit : voir [DEPLOYMENT.md](DEPLOYMENT.md) pour Render et Neon.
+PigeManager permet de consulter les coffrets, de repérer les pièces manquantes et de préparer les commandes depuis une interface accessible sur ordinateur, tablette et téléphone.
 
-## Lancement sous Windows
+[Ouvrir l’application](https://pigemanager.onrender.com)
 
-Depuis la racine du projet, dans deux terminaux PowerShell :
+## Fonctionnalités principales
 
-```powershell
-cd backend
-.\.venv-win\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
+### Gestion des coffrets
 
-```powershell
-cd frontend
-npm.cmd run dev -- --host 127.0.0.1 --port 5173 --strictPort
-```
+Les coffrets sont présentés sous forme de cartes avec leur nom et leur nombre de pièces. Un clic ouvre la grille des piges correspondantes.
 
-Interface : http://127.0.0.1:5173
+La recherche accepte un nom, une dimension ou une plage de dimensions, par exemple : `12,34`, `12.34` ou `1 à 2`.
 
-Documentation API : http://127.0.0.1:8000/docs
+Il est également possible d’ajouter un coffret en indiquant sa plage de dimensions. Les piges sont alors générées automatiquement au pas de **0,01**.
 
-Arrêt : `Ctrl+C` dans chaque terminal. Si les serveurs sont déjà actifs en arrière-plan, les arrêter avant de les relancer.
+### Suivi des pièces manquantes
 
-Pour installer les dépendances sur une nouvelle machine, depuis la racine :
+Les quantités se modifient directement dans la grille du coffret. Les changements sont enregistrés automatiquement et les indicateurs visuels permettent de repérer les piges concernées.
 
-```powershell
-python -m venv backend/.venv-win
-backend/.venv-win/Scripts/python.exe -m pip install -r backend/requirements.txt
-cd frontend
-npm.cmd ci
-```
+### Préparation des commandes
 
-Le dossier `backend/.venv` fourni provient d'un environnement Unix ; l'environnement Windows utilise `.venv-win`.
+La page **Besoins** rassemble les pièces à commander et regroupe les quantités par code de pige. Les commandes peuvent être exportées en **Excel** ou en **PDF**.
 
-## Architecture et fonctionnement
+Les lots précédents restent consultables et peuvent être téléchargés à nouveau.
 
-- `frontend/src/App.tsx` : navigation React entre connexion, accueil, coffret, besoins et historique.
-- `frontend/src/services/api.ts` : appels HTTP vers le port 8000 du même hôte. `VITE_API_BASE_URL` permet de modifier cette adresse à la compilation ou au démarrage de Vite.
-- `frontend/src/hooks/useDebouncedSave.ts` : sauvegarde après 500 ms sans nouveau clic et mise en file des sauvegardes par pige.
-- `backend/app/api/routes.py` : routes FastAPI et validation des entrées par les schémas Pydantic.
-- `backend/app/services` : contrôles, calcul des besoins, utilisateurs, historique et exports.
-- `backend/app/models` et `database.py` : modèles SQLAlchemy et accès SQLite.
-- `backend/app/core` : configuration, journalisation, erreurs HTTP et calcul des statuts.
+### Historique des contrôles
 
-La base persistante est `backend/pigecontrol.db`. Le démarrage crée les tables absentes. Il n'effectue pas de migration des tables existantes.
+L’historique permet de retrouver les contrôles enregistrés, leur date, le nom renseigné par l’utilisateur et les quantités concernées.
 
-Un contrôle ajoute une entrée à l'historique. Le dernier contrôle de chaque pige détermine son état courant. Les besoins déduisent les quantités déjà exportées depuis la dernière remise à zéro. Créer un lot d'export enregistre donc des quantités considérées comme commandées ; télécharger à nouveau un lot existant ne crée pas de commande supplémentaire.
+## Utilisation
 
-`import_excel.py` importe des coffrets depuis un classeur. `seed_visible_data.py` peuple les coffrets prédéfinis et réécrit leurs quantités initiales et positions : ne pas l'exécuter simplement pour démarrer une base déjà remplie.
+1. Saisir son nom pour accéder à l’application.
+2. Rechercher un coffret et cliquer sur sa carte.
+3. Renseigner les quantités manquantes et attendre la fin de la sauvegarde.
+4. Ouvrir **Besoins** pour consulter les pièces à commander.
+5. Exporter la commande au format souhaité.
 
-## Vérifications du 29 septembre 2026
+## À savoir
 
-- Installation Windows : Python 3.14.7 et Node 24.21.0.
-- `npm.cmd run build` et `npm.cmd run lint` : réussis.
-- Interface, santé API, coffrets, besoins, historique et exports : réponses HTTP 200.
-- Lecture des 27 coffrets et de leurs 1 827 piges : réussie.
-- Base existante : 50 contrôles, 2 lots d'export, aucun besoin restant à commander.
-- Téléchargement Excel et PDF d'un lot existant : réussi.
-- En-tête CORS vérifié pour l'interface locale.
-
-Ces vérifications n'incluent pas de parcours interactif dans un navigateur ni de création de contrôles dans la base existante.
-
-## Points relevés à la lecture du code
-
-- La connexion identifie un nom sans mot de passe ni session authentifiée côté serveur ; les routes ne contrôlent pas de droits d'accès.
-- Les versions Python ne sont pas figées dans `requirements.txt`, ce qui rend les installations futures moins reproductibles.
-- Au départ de la page coffret, les sauvegardes restantes sont envoyées directement, sans rejoindre la file des requêtes déjà en cours. Une modification récente peut donc être dépassée par une requête précédente ; la fermeture de l'onglet ne garantit pas non plus la fin de ces envois.
-- La création des lots calcule les besoins puis enregistre les lignes sans mécanisme explicite empêchant deux exports simultanés des mêmes besoins.
-- Aucun ensemble de tests automatisés propre au projet n'a été trouvé dans les sources inspectées.
+- Créer un export enregistre les pièces comme commandées et les déduit des besoins suivants. Retélécharger un export existant ne crée pas une nouvelle commande.
+- La remise à zéro demande une confirmation et conserve l’historique. Pour les piges remises à zéro, les anciennes commandes ne sont plus déduites des futurs besoins.
+- Un coffret déjà associé à des contrôles ou à des exports ne peut pas être supprimé, afin de préserver l’historique.
+- Le nom saisi sert à identifier les contrôles ; il ne constitue pas une connexion protégée par mot de passe.
