@@ -48,6 +48,16 @@ export function rechercherCoffrets(coffrets: Coffret[], saisie: string): Coffret
     .sort((a, b) => Number(estExact(b)) - Number(estExact(a)))
 }
 
+// "COFFRET PIGES 0,50 À 1,00" -> { libelle: "Coffret piges", plage: "0,50 à 1,00" }.
+export function decouperNomCoffret(nom: string): { libelle: string; plage?: string } {
+  const correspondance = nom.match(/^(.*?)\s+(\d+(?:[.,]\d+)?\s+[àa]\s+\d+(?:[.,]\d+)?)$/i)
+  if (!correspondance) return { libelle: afficherNomCoffret(nom) }
+  return {
+    libelle: afficherNomCoffret(correspondance[1]),
+    plage: correspondance[2].toLocaleLowerCase('fr-FR'),
+  }
+}
+
 // Les noms sont en majuscules dans la base : on les affiche en ecriture normale.
 export function afficherNomCoffret(nom: string): string {
   const minuscules = nom.toLocaleLowerCase('fr-FR')

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import coffretImage from '../assets/coffret.svg'
 import type { Coffret } from '../types/api'
 import { PageHeader, StateMessage } from '../components/ui'
-import { afficherNomCoffret, rechercherCoffrets } from '../utils/rechercheCoffret'
+import { afficherNomCoffret, decouperNomCoffret, rechercherCoffrets } from '../utils/rechercheCoffret'
 
 type AccueilProps = {
   coffrets: Coffret[]
@@ -43,20 +43,24 @@ function Accueil({ coffrets, isLoading, error, onSelectCoffret }: AccueilProps) 
       </StateMessage>
 
       <div className="coffret-list">
-        {filteredCoffrets.map((coffret) => (
-          <button
-            type="button"
-            className="coffret-card"
-            key={coffret.id}
-            title={afficherNomCoffret(coffret.nom)}
-            aria-label={`Ouvrir ${afficherNomCoffret(coffret.nom)}, ${coffret.total_piges} pièces`}
-            onClick={() => onSelectCoffret(coffret)}
-          >
-            <img src={coffretImage} alt="" />
-            <strong className="coffret-card-title">{afficherNomCoffret(coffret.nom)}</strong>
-            <span className="coffret-card-count">{coffret.total_piges} pièces</span>
-          </button>
-        ))}
+        {filteredCoffrets.map((coffret) => {
+          const { libelle, plage } = decouperNomCoffret(coffret.nom)
+          return (
+            <button
+              type="button"
+              className="coffret-card"
+              key={coffret.id}
+              title={afficherNomCoffret(coffret.nom)}
+              aria-label={`Ouvrir ${afficherNomCoffret(coffret.nom)}, ${coffret.total_piges} pièces`}
+              onClick={() => onSelectCoffret(coffret)}
+            >
+              <img src={coffretImage} alt="" />
+              <span className="coffret-card-label">{libelle}</span>
+              {plage && <strong className="coffret-card-title">{plage}</strong>}
+              <span className="coffret-card-count">{coffret.total_piges} pièces</span>
+            </button>
+          )
+        })}
       </div>
     </main>
   )

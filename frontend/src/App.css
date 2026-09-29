@@ -459,11 +459,19 @@ button:disabled {
   object-fit: contain;
 }
 
+.coffret-card-label {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
 .coffret-card-title {
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.3;
-  overflow-wrap: anywhere;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .coffret-card-count {
