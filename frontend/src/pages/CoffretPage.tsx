@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import GrillePiges from '../components/GrillePiges'
 import SuppressionCoffretDialog from '../components/SuppressionCoffretDialog'
-import { Button, PageHeader, StateMessage, useToast } from '../components/ui'
+import { Button, IconeSupprimer, PageHeader, StateMessage, useToast } from '../components/ui'
 import { createControle, getPigesByCoffret } from '../services/api'
 import { useDebouncedSave } from '../hooks/useDebouncedSave'
 import type { Coffret, Pige, Utilisateur } from '../types/api'
@@ -68,7 +68,7 @@ function CoffretPage({ coffret, utilisateur, onBack, onDeleted }: CoffretPagePro
         quantite_manquante: value,
       })
     } catch (caughtError) {
-      showToast(caughtError instanceof Error ? caughtError.message : "Impossible de sauvegarder la quantite.", 'error')
+      showToast(caughtError instanceof Error ? caughtError.message : "Impossible de sauvegarder la quantité.", 'error')
       await loadPiges(false)
     }
   }, [loadPiges, showToast, utilisateur.id])
@@ -101,7 +101,17 @@ function CoffretPage({ coffret, utilisateur, onBack, onDeleted }: CoffretPagePro
         eyebrow="Coffret"
         title={afficherNomCoffret(coffret.nom)}
         left={<Button variant="secondary" onClick={onBack}>Retour</Button>}
-        right={<Button variant="danger" onClick={() => setIsSuppressionOpen(true)}>Supprimer</Button>}
+        right={
+          <Button
+            variant="danger"
+            className="icon-only"
+            onClick={() => setIsSuppressionOpen(true)}
+            aria-label="Supprimer le coffret"
+            title="Supprimer le coffret"
+          >
+            <IconeSupprimer />
+          </Button>
+        }
       />
 
       <StateMessage>{isLoading ? 'Chargement de la grille...' : undefined}</StateMessage>
@@ -119,13 +129,13 @@ function CoffretPage({ coffret, utilisateur, onBack, onDeleted }: CoffretPagePro
               <strong className="ok">{stats.ok}</strong>
             </article>
             <article>
-              <span>Piges a commander</span>
+              <span>Piges à commander</span>
               <strong className="bad">{stats.aCommander}</strong>
             </article>
           </aside>
 
           <div className="grid-panel">
-            <p className="grid-hint">Touchez une case pour ajouter 1 a commander. Le bouton − retire 1.</p>
+            <p className="grid-hint">Touchez une case pour ajouter 1 à commander. Le bouton − retire 1.</p>
             <GrillePiges
               piges={piges}
               selectedPigeId={selectedPigeId}
@@ -133,11 +143,11 @@ function CoffretPage({ coffret, utilisateur, onBack, onDeleted }: CoffretPagePro
               onDecrement={(pige) => changeQuantity(pige, -1)}
             />
             <p className={`autosave-status${isSaving ? ' is-saving' : ''}`}>
-              {isSaving ? 'Sauvegarde...' : 'Tout est enregistre'}
+              {isSaving ? 'Sauvegarde...' : 'Tout est enregistré'}
             </p>
             <div className="status-legend" aria-label="Legende des statuts">
               <span><i className="legend-dot present"></i>OK</span>
-              <span><i className="legend-dot missing"></i>A commander (le chiffre = quantite)</span>
+              <span><i className="legend-dot missing"></i>À commander (le chiffre = quantité)</span>
             </div>
           </div>
         </section>

@@ -1,4 +1,5 @@
 export { default as Button } from './Button'
+export { IconeAjouter, IconeReset, IconeSupprimer, IconeTelecharger } from './Icones'
 export { default as PageHeader } from './PageHeader'
 export { default as StateMessage } from './StateMessage'
 export { useToast } from './Toast'

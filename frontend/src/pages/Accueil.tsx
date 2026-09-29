@@ -3,7 +3,7 @@ import coffretImage from '../assets/coffret.svg'
 import AjoutCoffretDialog from '../components/AjoutCoffretDialog'
 import ResetDialog from '../components/ResetDialog'
 import type { Coffret, Utilisateur } from '../types/api'
-import { Button, PageHeader, StateMessage, useToast } from '../components/ui'
+import { Button, IconeAjouter, IconeReset, PageHeader, StateMessage, useToast } from '../components/ui'
 import { afficherNomCoffret, decouperNomCoffret, rechercherCoffrets } from '../utils/rechercheCoffret'
 
 type AccueilProps = {
@@ -33,7 +33,15 @@ function Accueil({ coffrets, utilisateur, isLoading, error, onSelectCoffret, onC
       <StateMessage variant="error">{error}</StateMessage>
 
       <div className="search-row">
-        <Button variant="danger" onClick={() => setIsResetOpen(true)}>Reset</Button>
+        <Button
+          variant="danger"
+          className="icon-only"
+          onClick={() => setIsResetOpen(true)}
+          aria-label="Tout remettre à zéro"
+          title="Tout remettre à zéro"
+        >
+          <IconeReset />
+        </Button>
         <div className="search-bar">
           <input
             value={search}
@@ -43,7 +51,15 @@ function Accueil({ coffrets, utilisateur, isLoading, error, onSelectCoffret, onC
           />
           <span>⌕</span>
         </div>
-        <Button variant="primary" onClick={() => setIsAjoutOpen(true)}>+ Ajouter un coffret</Button>
+        <Button
+          variant="primary"
+          className="icon-only"
+          onClick={() => setIsAjoutOpen(true)}
+          aria-label="Ajouter un coffret"
+          title="Ajouter un coffret"
+        >
+          <IconeAjouter />
+        </Button>
       </div>
 
       <StateMessage>
