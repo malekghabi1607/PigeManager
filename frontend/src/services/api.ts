@@ -1,5 +1,5 @@
 import type {
-  Besoin,
+  BesoinGroupe,
   Coffret,
   CoffretCree,
   CoffretPayload,
@@ -80,8 +80,8 @@ export function createControle(payload: ControlePayload): Promise<Controle> {
   })
 }
 
-export function getBesoins(): Promise<Besoin[]> {
-  return request<Besoin[]>('/besoins')
+export function getBesoinsGroupes(): Promise<BesoinGroupe[]> {
+  return request<BesoinGroupe[]>('/besoins/groupes')
 }
 
 export function getHistorique(): Promise<HistoriqueControle[]> {

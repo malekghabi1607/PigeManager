@@ -41,6 +41,22 @@ class BesoinRead(BaseModel):
     quantite_a_commander: int
 
 
+class BesoinDetailRead(BaseModel):
+    pige_id: int
+    coffret_nom: str
+    quantite_a_commander: int
+    quantite_deja_commandee: int
+
+
+class BesoinGroupeRead(BaseModel):
+    """Toutes les piges d'un meme code, quel que soit leur coffret."""
+
+    code: str
+    quantite_a_commander: int
+    quantite_deja_commandee: int
+    detail: list[BesoinDetailRead]
+
+
 class ExportCreate(BaseModel):
     utilisateur_id: int
 

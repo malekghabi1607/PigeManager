@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import QuantiteSelector from '../components/QuantiteSelector'
 import { Button, PageHeader, StateMessage, useToast } from '../components/ui'
-import { createControle, createExport, getBesoins, getExports, getExportUrl } from '../services/api'
+import { createControle, createExport, getBesoinsGroupes, getExports, getExportUrl } from '../services/api'
 import { useDebouncedSave } from '../hooks/useDebouncedSave'
-import type { Besoin, ExportFormat, ExportLot, Utilisateur } from '../types/api'
+import type { BesoinGroupe, ExportFormat, ExportLigne, ExportLot, Utilisateur } from '../types/api'
 import { afficherNomCoffret } from '../utils/rechercheCoffret'
 
 const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' })
@@ -12,7 +12,7 @@ const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeSt
 async function telecharger(lotId: number, format: ExportFormat) {
   const response = await fetch(getExportUrl(lotId, format))
   if (!response.ok) {
-    throw new Error('Impossible de telecharger le fichier.')
+    throw new Error('Impossible de télécharger le fichier.')
   }
   const url = URL.createObjectURL(await response.blob())
   const lien = document.createElement('a')
@@ -22,13 +22,34 @@ async function telecharger(lotId: number, format: ExportFormat) {
   URL.revokeObjectURL(url)
 }
 
+const valeurCode = (code: string) => Number(code.replace(',', '.'))
+const pluriel = (nombre: number, mot: string) => `${mot}${nombre > 1 ? 's' : ''}`
+
+// Une puce par code dans les exports precedents : quantites de tous les coffrets additionnees.
+function lignesParCode(lignes: ExportLigne[]) {
+  const parCode = new Map<string, { code: string; quantite: number; coffrets: string[] }>()
+  for (const ligne of lignes) {
+    const entree = parCode.get(ligne.code) ?? { code: ligne.code, quantite: 0, coffrets: [] }
+    entree.quantite += ligne.quantite
+    entree.coffrets.push(afficherNomCoffret(ligne.coffret_nom))
+    parCode.set(ligne.code, entree)
+  }
+  // Premier numero du nom : "9,00 a 10,00" passe avant "10,00 a 10,50".
+  const ordreCoffret = (nom: string) => valeurCode(nom.match(/\d+(?:,\d+)?/)?.[0] ?? '0')
+  for (const entree of parCode.values()) {
+    entree.coffrets.sort((a, b) => ordreCoffret(a) - ordreCoffret(b))
+  }
+  return [...parCode.values()].sort((a, b) => valeurCode(a.code) - valeurCode(b.code))
+}
+
 type BesoinPageProps = {
   utilisateur: Utilisateur
   onBack: () => void
 }
 
 function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
-  const [besoins, setBesoins] = useState<Besoin[]>([])
+  const [groupes, setGroupes] = useState<BesoinGroupe[]>([])
+  const [ouverts, setOuverts] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>()
   const { toastElement, showToast } = useToast()
@@ -36,8 +57,8 @@ function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
   const [isExporting, setIsExporting] = useState(false)
 
   const loadBesoins = useCallback(() => {
-    return getBesoins()
-      .then(setBesoins)
+    return getBesoinsGroupes()
+      .then(setGroupes)
       .catch(() => setError('Impossible de charger les besoins.'))
       .finally(() => setIsLoading(false))
   }, [])
@@ -57,8 +78,9 @@ function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
     setIsExporting(true)
     try {
       const lot = await createExport(utilisateur.id)
+      const codes = lignesParCode(lot.lignes).length
       const pieces = lot.lignes.reduce((sum, ligne) => sum + ligne.quantite, 0)
-      showToast(`Commande n°${lot.id} exportee : ${lot.lignes.length} piges, ${pieces} pieces.`)
+      showToast(`Commande n°${lot.id} exportée : ${codes} ${pluriel(codes, 'pige')}, ${pieces} ${pluriel(pieces, 'pièce')}.`)
       await Promise.all([loadBesoins(), loadExports()])
       await telecharger(lot.id, format)
     } catch (caughtError) {
@@ -80,82 +102,142 @@ function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
         quantite_manquante: value,
       })
     } catch (caughtError) {
-      showToast(caughtError instanceof Error ? caughtError.message : "Impossible de modifier la quantite.", 'error')
+      showToast(caughtError instanceof Error ? caughtError.message : 'Impossible de modifier la quantité.', 'error')
       await loadBesoins()
     }
   }, [loadBesoins, showToast, utilisateur.id])
 
   const { schedule, isSaving } = useDebouncedSave(saveQuantity)
 
+  // Modifie la quantite d'une pige (donc d'un coffret) et recalcule le total de son code.
   // A 0, la ligne reste visible (grisee) pour pouvoir remonter avec + en cas d'erreur.
-  const updateBesoinQuantity = (besoin: Besoin, value: number) => {
+  const updateQuantite = (pigeId: number, dejaCommandee: number, value: number) => {
     const nextValue = Math.min(99, Math.max(0, value))
-    setBesoins((currentBesoins) =>
-      currentBesoins.map((currentBesoin) =>
-        currentBesoin.pige_id === besoin.pige_id
-          ? { ...currentBesoin, quantite_a_commander: nextValue }
-          : currentBesoin,
-      ),
+    setGroupes((current) =>
+      current.map((groupe) => {
+        if (!groupe.detail.some((detail) => detail.pige_id === pigeId)) {
+          return groupe
+        }
+        const detail = groupe.detail.map((item) =>
+          item.pige_id === pigeId ? { ...item, quantite_a_commander: nextValue } : item,
+        )
+        return { ...groupe, detail, quantite_a_commander: detail.reduce((sum, item) => sum + item.quantite_a_commander, 0) }
+      }),
     )
-    schedule(besoin.pige_id, besoin.quantite_deja_commandee + nextValue)
+    schedule(pigeId, dejaCommandee + nextValue)
   }
 
-  const activeBesoins = besoins.filter((besoin) => besoin.quantite_a_commander > 0)
-  const totalQuantite = activeBesoins.reduce((sum, besoin) => sum + besoin.quantite_a_commander, 0)
+  const basculerDetail = (code: string) => {
+    setOuverts((current) => {
+      const next = new Set(current)
+      if (next.has(code)) {
+        next.delete(code)
+      } else {
+        next.add(code)
+      }
+      return next
+    })
+  }
+
+  const groupesActifs = groupes.filter((groupe) => groupe.quantite_a_commander > 0)
+  const totalQuantite = groupesActifs.reduce((sum, groupe) => sum + groupe.quantite_a_commander, 0)
+
+  const dejaExportee = (quantite: number) =>
+    quantite > 0 && <span className="deja-commande">+{quantite} déjà {pluriel(quantite, 'exportée')}</span>
 
   return (
     <main className="screen">
       <PageHeader
         eyebrow="Réapprovisionnement"
-        title="Pieces a commander"
+        title="Pièces à commander"
         left={<Button variant="secondary" onClick={onBack}>Retour</Button>}
-        right={<span className="count-badge">{activeBesoins.length}</span>}
+        right={<span className="count-badge">{groupesActifs.length}</span>}
       />
 
       <StateMessage>{isLoading ? 'Chargement des besoins...' : undefined}</StateMessage>
       <StateMessage variant="error">{error}</StateMessage>
 
-      {!isLoading && activeBesoins.length === 0 && (
-        <StateMessage variant="success">Aucune nouvelle piece a commander.</StateMessage>
+      {!isLoading && groupesActifs.length === 0 && (
+        <StateMessage variant="success">Aucune nouvelle pièce à commander.</StateMessage>
       )}
 
-      {besoins.length > 0 && (
+      {groupes.length > 0 && (
       <section className="table-panel">
         <table>
           <thead>
             <tr>
-              <th>Coffret</th>
               <th>Code pige</th>
-              <th>Quantite a commander</th>
+              <th>Coffret</th>
+              <th>Quantité à commander</th>
             </tr>
           </thead>
           <tbody>
-            {besoins.map((besoin) => (
-              <tr key={besoin.pige_id} className={besoin.quantite_a_commander === 0 ? 'is-cleared' : undefined}>
-                <td>{afficherNomCoffret(besoin.coffret_nom)}</td>
-                <td>
-                  <strong>{besoin.code.replace(',', '.')}</strong>
-                  {besoin.quantite_deja_commandee > 0 && (
-                    <span className="deja-commande">+{besoin.quantite_deja_commandee} deja exportee{besoin.quantite_deja_commandee > 1 ? 's' : ''}</span>
-                  )}
-                </td>
-                <td>
-                  <div className="table-quantity">
-                    <QuantiteSelector
-                      value={besoin.quantite_a_commander}
-                      max={99}
-                      onChange={(value) => updateBesoinQuantity(besoin, value)}
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {groupes.map((groupe) => {
+              const plusieurs = groupe.detail.length > 1
+              const ouvert = plusieurs && ouverts.has(groupe.code)
+              const [seul] = groupe.detail
+              return (
+                <Fragment key={groupe.code}>
+                  <tr className={groupe.quantite_a_commander === 0 ? 'is-cleared' : undefined}>
+                    <td>
+                      <strong>{groupe.code.replace(',', '.')}</strong>
+                      {dejaExportee(groupe.quantite_deja_commandee)}
+                    </td>
+                    <td>
+                      {plusieurs ? (
+                        <button
+                          type="button"
+                          className="detail-toggle"
+                          aria-expanded={ouvert}
+                          onClick={() => basculerDetail(groupe.code)}
+                        >
+                          {groupe.detail.length} coffrets · {ouvert ? 'Masquer' : 'Détail'}
+                        </button>
+                      ) : (
+                        afficherNomCoffret(seul.coffret_nom)
+                      )}
+                    </td>
+                    <td>
+                      {plusieurs ? (
+                        <strong className="table-total">{groupe.quantite_a_commander}</strong>
+                      ) : (
+                        <div className="table-quantity">
+                          <QuantiteSelector
+                            value={seul.quantite_a_commander}
+                            max={99}
+                            onChange={(value) => updateQuantite(seul.pige_id, seul.quantite_deja_commandee, value)}
+                          />
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                  {ouvert && groupe.detail.map((detail) => (
+                    <tr key={detail.pige_id} className={`detail-row${detail.quantite_a_commander === 0 ? ' is-cleared' : ''}`}>
+                      <td></td>
+                      <td>
+                        {afficherNomCoffret(detail.coffret_nom)}
+                        {dejaExportee(detail.quantite_deja_commandee)}
+                      </td>
+                      <td>
+                        <div className="table-quantity">
+                          <QuantiteSelector
+                            value={detail.quantite_a_commander}
+                            max={99}
+                            onChange={(value) => updateQuantite(detail.pige_id, detail.quantite_deja_commandee, value)}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </Fragment>
+              )
+            })}
           </tbody>
-          {activeBesoins.length > 0 && (
+          {groupesActifs.length > 0 && (
             <tfoot>
               <tr>
                 <td colSpan={2}>Total</td>
-                <td><strong>{totalQuantite}</strong> pieces</td>
+                <td><strong>{totalQuantite}</strong> {pluriel(totalQuantite, 'pièce')}</td>
               </tr>
             </tfoot>
           )}
@@ -167,31 +249,32 @@ function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
       <div className="export-actions">
         <Button
           variant="primary"
-          disabled={activeBesoins.length === 0 || isSaving || isExporting}
+          disabled={groupesActifs.length === 0 || isSaving || isExporting}
           onClick={() => exporter('excel')}
         >
           Exporter Excel
         </Button>
         <Button
           variant="danger"
-          disabled={activeBesoins.length === 0 || isSaving || isExporting}
+          disabled={groupesActifs.length === 0 || isSaving || isExporting}
           onClick={() => exporter('pdf')}
         >
           Exporter PDF
         </Button>
       </div>
       <p className="export-hint">
-        Apres l'export, ces pieces passent dans « Exports precedents » et la liste repart a zero.
+        Après l'export, ces pièces passent dans « Exports précédents » et la liste repart à zéro.
       </p>
 
       {exports.length > 0 && (
         <section className="exports-list">
           <h2 className="history-day-title">
-            Exports precedents
-            <span>{exports.length} export{exports.length > 1 ? 's' : ''}</span>
+            Exports précédents
+            <span>{exports.length} {pluriel(exports.length, 'export')}</span>
           </h2>
           {exports.map((lot) => {
-            const pieces = lot.lignes.reduce((sum, ligne) => sum + ligne.quantite, 0)
+            const lignes = lignesParCode(lot.lignes)
+            const pieces = lignes.reduce((sum, ligne) => sum + ligne.quantite, 0)
             return (
               <article className="passage-card" key={lot.id}>
                 <header className="passage-header">
@@ -201,12 +284,12 @@ function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
                   </span>
                 </header>
                 <p className="passage-summary">
-                  <strong>{lot.lignes.length}</strong> pige{lot.lignes.length > 1 ? 's' : ''} ·{' '}
-                  <strong>{pieces}</strong> piece{pieces > 1 ? 's' : ''}
+                  <strong>{lignes.length}</strong> {pluriel(lignes.length, 'pige')} ·{' '}
+                  <strong>{pieces}</strong> {pluriel(pieces, 'pièce')}
                 </p>
                 <div className="passage-chips">
-                  {lot.lignes.map((ligne) => (
-                    <span className="pige-chip" key={ligne.pige_id} title={afficherNomCoffret(ligne.coffret_nom)}>
+                  {lignes.map((ligne) => (
+                    <span className="pige-chip" key={ligne.code} title={ligne.coffrets.join(', ')}>
                       {ligne.code.replace(',', '.')} <strong>×{ligne.quantite}</strong>
                     </span>
                   ))}

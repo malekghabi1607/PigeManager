@@ -8,6 +8,7 @@ from app.core.errors import not_found
 from app.database import get_db
 from app.models import Coffret, Controle, Utilisateur
 from app.schemas import (
+    BesoinGroupeRead,
     BesoinRead,
     CoffretCreate,
     CoffretCreateResult,
@@ -32,6 +33,7 @@ from app.services import (
     list_export_lots,
     connect_utilisateur,
     get_besoins,
+    get_besoins_groupes,
     get_historique_controles,
     get_piges_for_coffret,
     list_utilisateurs,
@@ -109,6 +111,12 @@ def create_controle(
 def list_besoins(db: Session = Depends(get_db)) -> list[BesoinRead]:
     logger.info("Listing besoins")
     return get_besoins(db)
+
+
+@router.get("/besoins/groupes", response_model=list[BesoinGroupeRead])
+def list_besoins_groupes(db: Session = Depends(get_db)) -> list[BesoinGroupeRead]:
+    logger.info("Listing besoins grouped by code")
+    return get_besoins_groupes(db)
 
 
 @router.get("/historique", response_model=list[HistoriqueControleRead])

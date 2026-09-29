@@ -1,4 +1,4 @@
-from app.services.besoins import get_besoins, get_besoins_rows
+from app.services.besoins import get_besoins, get_besoins_groupes, get_besoins_rows
 from app.services.coffrets import create_coffret, delete_coffret, list_coffrets
 from app.services.controles import save_controle
 from app.services.exports import (
@@ -22,6 +22,7 @@ __all__ = [
     "get_export_lot",
     "list_export_lots",
     "get_besoins",
+    "get_besoins_groupes",
     "get_besoins_rows",
     "get_historique_controles",
     "get_piges_for_coffret",

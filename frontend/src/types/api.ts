@@ -43,14 +43,19 @@ export type Controle = {
   date: string
 }
 
-export type Besoin = {
+export type BesoinDetail = {
   pige_id: number
-  coffret_id: number
   coffret_nom: string
-  code: string
-  quantite_manquante: number
-  quantite_deja_commandee: number
   quantite_a_commander: number
+  quantite_deja_commandee: number
+}
+
+// Toutes les piges d'un meme code, quel que soit leur coffret.
+export type BesoinGroupe = {
+  code: string
+  quantite_a_commander: number
+  quantite_deja_commandee: number
+  detail: BesoinDetail[]
 }
 
 export type ExportFormat = 'excel' | 'pdf'

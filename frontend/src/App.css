@@ -805,6 +805,33 @@ tfoot td {
   font-size: 12px;
 }
 
+.detail-toggle {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.detail-toggle:hover {
+  border-color: var(--primary);
+}
+
+.table-total {
+  display: inline-block;
+  min-width: 124px;
+  font-size: 17px;
+  text-align: center;
+}
+
+tr.detail-row td {
+  background: var(--surface-muted);
+  font-size: 14px;
+}
+
 .table-quantity .quantity-control {
   display: inline-grid;
   grid-template-columns: 38px 40px 38px;

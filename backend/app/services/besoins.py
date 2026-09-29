@@ -1,11 +1,13 @@
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from decimal import Decimal
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import Coffret, Controle, ExportLigne, ExportLot, Pige
-from app.schemas import BesoinRead
+from app.schemas import BesoinDetailRead, BesoinGroupeRead, BesoinRead
 
 
 @dataclass
@@ -127,3 +129,37 @@ def get_besoins(db: Session) -> list[BesoinRead]:
         )
         for row in get_besoins_rows(db)
     ]
+
+
+def valeur_code(code: str) -> Decimal:
+    """Valeur numerique d'un code ("10,00" -> 10.00), pour trier 2,00 avant 10,00."""
+    return Decimal(code.replace(",", "."))
+
+
+def ordre_coffret(nom: str) -> Decimal:
+    """Premier numero du nom : "9,00 a 10,00" passe avant "10,00 a 10,50"."""
+    nombre = re.search(r"\d+(?:,\d+)?", nom)
+    return valeur_code(nombre.group()) if nombre else Decimal(0)
+
+
+def get_besoins_groupes(db: Session) -> list[BesoinGroupeRead]:
+    # Seul l'affichage est regroupe : les besoins restent calcules par pige.
+    groupes: dict[str, BesoinGroupeRead] = {}
+    for row in get_besoins_rows(db):
+        groupe = groupes.setdefault(
+            row.code,
+            BesoinGroupeRead(code=row.code, quantite_a_commander=0, quantite_deja_commandee=0, detail=[]),
+        )
+        groupe.quantite_a_commander += row.quantite_a_commander
+        groupe.quantite_deja_commandee += row.quantite_deja_commandee
+        groupe.detail.append(
+            BesoinDetailRead(
+                pige_id=row.pige_id,
+                coffret_nom=row.coffret_nom,
+                quantite_a_commander=row.quantite_a_commander,
+                quantite_deja_commandee=row.quantite_deja_commandee,
+            )
+        )
+    for groupe in groupes.values():
+        groupe.detail.sort(key=lambda detail: ordre_coffret(detail.coffret_nom))
+    return sorted(groupes.values(), key=lambda groupe: valeur_code(groupe.code))
