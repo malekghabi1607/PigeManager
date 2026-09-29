@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import QuantiteSelector from '../components/QuantiteSelector'
 import { Button, PageHeader, StateMessage, useToast } from '../components/ui'
-import { createControle, createExport, getBesoinsGroupes, getExports, getExportUrl } from '../services/api'
+import { createControle, createExport, getBesoinsGroupes, getExportFichier, getExports } from '../services/api'
 import { useDebouncedSave } from '../hooks/useDebouncedSave'
 import type { BesoinGroupe, ExportFormat, ExportLigne, ExportLot, Utilisateur } from '../types/api'
 import { afficherNomCoffret } from '../utils/rechercheCoffret'
@@ -10,11 +10,10 @@ const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeSt
 
 // Telecharge le fichier sans ouvrir d'onglet (pas bloque par le navigateur).
 async function telecharger(lotId: number, format: ExportFormat) {
-  const response = await fetch(getExportUrl(lotId, format))
-  if (!response.ok) {
+  const fichier = await getExportFichier(lotId, format).catch(() => {
     throw new Error('Impossible de télécharger le fichier.')
-  }
-  const url = URL.createObjectURL(await response.blob())
+  })
+  const url = URL.createObjectURL(fichier)
   const lien = document.createElement('a')
   lien.href = url
   lien.download = `pigecontrol_commande_${lotId}.${format === 'excel' ? 'xlsx' : 'pdf'}`

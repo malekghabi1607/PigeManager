@@ -26,6 +26,19 @@ class Settings:
             return url
         return f"sqlite:///{self.database_path}"
 
+    # Lus a chaque acces, comme DATABASE_URL, pour suivre l'environnement du processus.
+    @property
+    def atelier_pin(self) -> str:
+        return os.environ.get("ATELIER_PIN", "").strip()
+
+    @property
+    def secret_key(self) -> str:
+        return os.environ.get("SECRET_KEY", "").strip()
+
+    @property
+    def static_dir(self) -> str:
+        return os.environ.get("STATIC_DIR", "").strip()
+
 
 settings = Settings()
 

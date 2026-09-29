@@ -10,7 +10,19 @@ Le Dockerfile compile React puis sert l'interface et FastAPI sur une seule adres
 4. Renseigner `DATABASE_URL` avec l'URL Neon dans le formulaire Render. Cette URL contient un mot de passe : ne pas la mettre dans GitHub ni dans le frontend.
 5. Apres le deploiement, ouvrir l'adresse HTTPS indiquee par Render. Elle fonctionne depuis un telephone sans laisser le PC allume.
 
-L'application actuelle identifie les utilisateurs par leur nom sans authentification. Une instance publiee est donc accessible et modifiable par les visiteurs qui connaissent son URL. Ajouter un controle d'acces avant d'y placer des donnees privees.
+## Code atelier
+
+L'application demande un code atelier sur chaque appareil avant de laisser entrer. Le code est valable 30 jours sur l'appareil, puis il est redemande.
+
+- **Definir le code** : dans Render, onglet **Environment** du service, renseigner `ATELIER_PIN` (par exemple 6 chiffres), puis enregistrer. Render redeploie le service.
+- **Changer le code** : modifier `ATELIER_PIN` de la meme facon. Tous les appareils devront saisir le nouveau code : les anciennes sessions sont invalidees.
+- `SECRET_KEY` est generee automatiquement par Render grace a `render.yaml`. Ne pas la communiquer.
+- Sans `ATELIER_PIN` ou `SECRET_KEY`, le service refuse de demarrer en ligne : c'est voulu, pour ne jamais publier l'application sans protection.
+- Apres 5 codes faux en 15 minutes depuis la meme adresse, les essais sont bloques 15 minutes.
+
+Un code partage protege l'acces au site, mais il ne prouve pas l'identite de chaque controleur : le nom saisi ensuite n'est pas verifie. Toute personne qui connait le code peut utiliser l'application.
+
+En local, sans `ATELIER_PIN`, l'application fonctionne sans code (un avertissement s'affiche au demarrage du serveur).
 
 ## Donnees
 

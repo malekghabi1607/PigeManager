@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
+from app.core.auth import exiger_jeton
 from app.core.errors import not_found
 from app.database import get_db
 from app.models import Coffret, Controle, Utilisateur
@@ -45,7 +46,8 @@ from app.services import (
 )
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+# Toutes ces routes exigent le jeton du code atelier (quand un code est configure).
+router = APIRouter(dependencies=[Depends(exiger_jeton)])
 
 
 @router.get("/utilisateurs", response_model=list[UtilisateurRead])

@@ -1,15 +1,12 @@
 import type { ReactNode } from 'react'
 import logo from '../assets/logo.svg'
-import type { Utilisateur } from '../types/api'
 
 type NavView = 'accueil' | 'besoins' | 'historique'
 
 type AppShellProps = {
   activeView: string
   children: ReactNode
-  utilisateur: Utilisateur
   onNavigate: (view: NavView) => void
-  onChangeUtilisateur: () => void
 }
 
 const iconProps = {
@@ -43,7 +40,7 @@ const navItems: { view: NavView; label: string; icon: ReactNode }[] = [
 // Le controle d'un coffret se fait depuis l'accueil : il reste rattache a "Accueil".
 const navViewFor = (view: string) => (view === 'coffret' ? 'accueil' : view)
 
-function AppShell({ activeView, children, utilisateur, onNavigate, onChangeUtilisateur }: AppShellProps) {
+function AppShell({ activeView, children, onNavigate }: AppShellProps) {
   const currentView = navViewFor(activeView)
 
   return (
@@ -70,26 +67,6 @@ function AppShell({ activeView, children, utilisateur, onNavigate, onChangeUtili
             </button>
           ))}
         </nav>
-        <div className="sidebar-footer">
-          <div className="operator-card">
-            <span className="operator-avatar" aria-hidden="true">
-              {utilisateur.nom.charAt(0).toUpperCase()}
-            </span>
-            <div className="operator-text">
-              <span>Contrôleur</span>
-              <strong>{utilisateur.nom}</strong>
-            </div>
-            <button
-              type="button"
-              className="operator-change"
-              onClick={onChangeUtilisateur}
-              aria-label="Changer de contrôleur"
-              title="Changer de contrôleur"
-            >
-              <svg {...iconProps}><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10" /></svg>
-            </button>
-          </div>
-        </div>
       </aside>
       <div className="app-content">{children}</div>
     </div>

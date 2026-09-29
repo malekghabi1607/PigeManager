@@ -7,3 +7,9 @@ services:
     envVars:
       - key: DATABASE_URL
         sync: false
+      # Code demande sur chaque appareil avant d'utiliser l'application.
+      - key: ATELIER_PIN
+        sync: false
+      # Cle de signature des sessions, generee une fois par Render.
+      - key: SECRET_KEY
+        generateValue: true
