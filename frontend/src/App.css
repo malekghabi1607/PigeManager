@@ -229,6 +229,10 @@ button:disabled {
   margin: 0 0 20px;
 }
 
+.page-heading {
+  text-align: center;
+}
+
 .page-heading h1,
 .toolbar h1 {
   margin: 0;
