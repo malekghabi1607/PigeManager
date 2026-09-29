@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Button, PageHeader, StateMessage } from '../components/ui'
 import { getHistorique } from '../services/api'
 import type { HistoriqueControle } from '../types/api'
+import { afficherNomCoffret } from '../utils/rechercheCoffret'
 
 type HistoriquePageProps = {
   onBack: () => void
@@ -139,7 +140,7 @@ function CartePassage({ passage }: { passage: Passage }) {
   return (
     <article className="passage-card">
       <header className="passage-header">
-        <h3>{passage.coffret}</h3>
+        <h3>{afficherNomCoffret(passage.coffret)}</h3>
         <span className="passage-meta">
           {debut === fin ? debut : `${debut} → ${fin}`} · {passage.utilisateur}
         </span>

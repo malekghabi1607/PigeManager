@@ -4,6 +4,7 @@ import { Button, PageHeader, StateMessage, useToast } from '../components/ui'
 import { createControle, getPigesByCoffret } from '../services/api'
 import { useDebouncedSave } from '../hooks/useDebouncedSave'
 import type { Coffret, Pige, Utilisateur } from '../types/api'
+import { afficherNomCoffret } from '../utils/rechercheCoffret'
 
 const MAX_QUANTITE = 99
 
@@ -96,7 +97,7 @@ function CoffretPage({ coffret, utilisateur, onBack }: CoffretPageProps) {
     <main className="screen">
       <PageHeader
         eyebrow="Coffret"
-        title={coffret.nom}
+        title={afficherNomCoffret(coffret.nom)}
         left={<Button variant="secondary" onClick={onBack}>Retour</Button>}
       />
 

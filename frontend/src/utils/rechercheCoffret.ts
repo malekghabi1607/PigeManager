@@ -30,7 +30,8 @@ export function rechercherCoffrets(coffrets: Coffret[], saisie: string): Coffret
   return coffrets.filter((coffret) => coffret.nom.toLowerCase().includes(recherche.toLowerCase()))
 }
 
-export function nomCourtCoffret(nom: string): string {
-  const correspondance = nom.match(new RegExp(`^COFFRET\\s+PIGES\\s+(${nombre})\\s+[ÀA]\\s+(${nombre})$`, 'i'))
-  return correspondance ? `${correspondance[1]} → ${correspondance[2]}` : nom
+// Les noms sont en majuscules dans la base : on les affiche en ecriture normale.
+export function afficherNomCoffret(nom: string): string {
+  const minuscules = nom.toLocaleLowerCase('fr-FR')
+  return minuscules.charAt(0).toLocaleUpperCase('fr-FR') + minuscules.slice(1)
 }

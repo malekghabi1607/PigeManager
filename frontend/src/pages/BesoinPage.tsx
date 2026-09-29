@@ -4,6 +4,7 @@ import { Button, PageHeader, StateMessage, useToast } from '../components/ui'
 import { createControle, createExport, getBesoins, getExports, getExportUrl } from '../services/api'
 import { useDebouncedSave } from '../hooks/useDebouncedSave'
 import type { Besoin, ExportFormat, ExportLot, Utilisateur } from '../types/api'
+import { afficherNomCoffret } from '../utils/rechercheCoffret'
 
 const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' })
 
@@ -131,7 +132,7 @@ function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
           <tbody>
             {besoins.map((besoin) => (
               <tr key={besoin.pige_id} className={besoin.quantite_a_commander === 0 ? 'is-cleared' : undefined}>
-                <td>{besoin.coffret_nom}</td>
+                <td>{afficherNomCoffret(besoin.coffret_nom)}</td>
                 <td>
                   <strong>{besoin.code.replace(',', '.')}</strong>
                   {besoin.quantite_deja_commandee > 0 && (
@@ -205,7 +206,7 @@ function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
                 </p>
                 <div className="passage-chips">
                   {lot.lignes.map((ligne) => (
-                    <span className="pige-chip" key={ligne.pige_id} title={ligne.coffret_nom}>
+                    <span className="pige-chip" key={ligne.pige_id} title={afficherNomCoffret(ligne.coffret_nom)}>
                       {ligne.code.replace(',', '.')} <strong>×{ligne.quantite}</strong>
                     </span>
                   ))}
