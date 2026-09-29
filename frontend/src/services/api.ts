@@ -78,6 +78,8 @@ export function createControle(payload: ControlePayload): Promise<Controle> {
   return request<Controle>('/controle', {
     method: 'POST',
     body: JSON.stringify(payload),
+    // La sauvegarde continue meme si l'onglet se ferme juste apres.
+    keepalive: true,
   })
 }
 
