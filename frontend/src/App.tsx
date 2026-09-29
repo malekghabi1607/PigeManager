@@ -75,6 +75,11 @@ function App() {
             coffret={selectedCoffret}
             utilisateur={utilisateur}
             onBack={() => setView('accueil')}
+            onDeleted={(supprime) => {
+              setCoffrets((current) => current.filter((item) => item.id !== supprime.id))
+              setSelectedCoffret(undefined)
+              setView('accueil')
+            }}
           />
         </AppShell>
       </>
@@ -89,6 +94,7 @@ function App() {
           isLoading={isLoading}
           error={error}
           onSelectCoffret={openCoffret}
+          onCoffretCree={(coffret) => setCoffrets((current) => [...current, coffret])}
         />
       </AppShell>
     </>

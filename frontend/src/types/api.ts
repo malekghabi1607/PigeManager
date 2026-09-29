@@ -6,6 +6,17 @@ export type Coffret = {
   code_fin: number | null
 }
 
+export type CoffretPayload = {
+  code_debut: number
+  code_fin: number
+  colonnes: number
+  nom?: string
+}
+
+export type CoffretCree = Coffret & {
+  avertissements: string[]
+}
+
 export type Pige = {
   id: number
   coffret_id: number

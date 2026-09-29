@@ -6,6 +6,7 @@ from sqlalchemy import select
 
 from app.database import Base, SessionLocal, engine
 from app.models import Coffret, Pige
+from app.services.coffrets import coffret_name, generer_piges
 
 
 VISIBLE_COFFRETS = [
@@ -39,21 +40,6 @@ VISIBLE_COFFRETS = [
 ]
 
 
-def format_code(value: Decimal) -> str:
-    return f"{value:.2f}".replace(".", ",")
-
-
-def coffret_name(start: Decimal, end: Decimal) -> str:
-    return f"COFFRET PIGES {format_code(start)} À {format_code(end)}"
-
-
-def iter_codes(start: Decimal, end: Decimal):
-    current = start
-    while current <= end:
-        yield current
-        current += Decimal("0.01")
-
-
 def seed() -> tuple[int, int]:
     Base.metadata.create_all(bind=engine)
     coffrets_count = 0
@@ -69,10 +55,7 @@ def seed() -> tuple[int, int]:
                 db.flush()
                 coffrets_count += 1
 
-            for index, code_value in enumerate(iter_codes(start, end)):
-                code = format_code(code_value)
-                position_ligne = index // columns + 1
-                position_colonne = index % columns + 1
+            for code, position_ligne, position_colonne in generer_piges(start, end, columns):
                 pige = db.scalar(
                     select(Pige).where(
                         Pige.coffret_id == coffret.id,

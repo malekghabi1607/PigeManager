@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import GrillePiges from '../components/GrillePiges'
+import SuppressionCoffretDialog from '../components/SuppressionCoffretDialog'
 import { Button, PageHeader, StateMessage, useToast } from '../components/ui'
 import { createControle, getPigesByCoffret } from '../services/api'
 import { useDebouncedSave } from '../hooks/useDebouncedSave'
@@ -12,9 +13,11 @@ type CoffretPageProps = {
   coffret: Coffret
   utilisateur: Utilisateur
   onBack: () => void
+  onDeleted: (coffret: Coffret) => void
 }
 
-function CoffretPage({ coffret, utilisateur, onBack }: CoffretPageProps) {
+function CoffretPage({ coffret, utilisateur, onBack, onDeleted }: CoffretPageProps) {
+  const [isSuppressionOpen, setIsSuppressionOpen] = useState(false)
   const [piges, setPiges] = useState<Pige[]>([])
   const [selectedPigeId, setSelectedPigeId] = useState<number>()
   const [isLoading, setIsLoading] = useState(true)
@@ -98,6 +101,7 @@ function CoffretPage({ coffret, utilisateur, onBack }: CoffretPageProps) {
         eyebrow="Coffret"
         title={afficherNomCoffret(coffret.nom)}
         left={<Button variant="secondary" onClick={onBack}>Retour</Button>}
+        right={<Button variant="danger" onClick={() => setIsSuppressionOpen(true)}>Supprimer</Button>}
       />
 
       <StateMessage>{isLoading ? 'Chargement de la grille...' : undefined}</StateMessage>
@@ -138,6 +142,12 @@ function CoffretPage({ coffret, utilisateur, onBack }: CoffretPageProps) {
           </div>
         </section>
       )}
+      <SuppressionCoffretDialog
+        coffret={coffret}
+        open={isSuppressionOpen}
+        onClose={() => setIsSuppressionOpen(false)}
+        onSupprime={onDeleted}
+      />
       {toastElement}
     </main>
   )

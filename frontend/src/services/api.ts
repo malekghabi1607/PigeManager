@@ -1,6 +1,8 @@
 import type {
   Besoin,
   Coffret,
+  CoffretCree,
+  CoffretPayload,
   Controle,
   ControlePayload,
   ExportFormat,
@@ -39,11 +41,25 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     throw new Error(message)
   }
 
+  if (response.status === 204) {
+    return undefined as T
+  }
   return response.json() as Promise<T>
 }
 
 export function getCoffrets(): Promise<Coffret[]> {
   return request<Coffret[]>('/coffrets')
+}
+
+export function deleteCoffret(coffretId: number): Promise<void> {
+  return request<void>(`/coffrets/${coffretId}`, { method: 'DELETE' })
+}
+
+export function createCoffret(payload: CoffretPayload): Promise<CoffretCree> {
+  return request<CoffretCree>('/coffrets', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 }
 
 export function connectUtilisateur(payload: UtilisateurPayload): Promise<Utilisateur> {

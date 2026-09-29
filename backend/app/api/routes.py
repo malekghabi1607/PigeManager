@@ -2,14 +2,15 @@ import logging
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.errors import not_found
 from app.database import get_db
-from app.models import Coffret, Controle, Pige, Utilisateur
+from app.models import Coffret, Controle, Utilisateur
 from app.schemas import (
     BesoinRead,
+    CoffretCreate,
+    CoffretCreateResult,
     CoffretRead,
     ControleCreate,
     ControleRead,
@@ -23,6 +24,9 @@ from app.schemas import (
 from app.services import (
     build_lot_excel,
     build_lot_pdf,
+    create_coffret,
+    delete_coffret,
+    list_coffrets,
     create_export_lot,
     get_export_lot,
     list_export_lots,
@@ -60,22 +64,13 @@ def login_utilisateur(
 @router.get("/coffrets", response_model=list[CoffretRead])
 def get_coffrets(db: Session = Depends(get_db)) -> list[CoffretRead]:
     logger.info("Listing coffrets")
-    statement = (
-        select(Coffret.id, Coffret.nom, Pige.code)
-        .outerjoin(Coffret.piges)
-        .order_by(Coffret.id)
-    )
-    coffrets: dict[int, CoffretRead] = {}
-    for row in db.execute(statement):
-        if row.id not in coffrets:
-            coffrets[row.id] = CoffretRead(id=row.id, nom=row.nom)
-        coffret = coffrets[row.id]
-        if row.code is not None:
-            code = float(row.code.replace(",", "."))
-            coffret.total_piges += 1
-            coffret.code_debut = code if coffret.code_debut is None else min(coffret.code_debut, code)
-            coffret.code_fin = code if coffret.code_fin is None else max(coffret.code_fin, code)
-    return list(coffrets.values())
+    return list_coffrets(db)
+
+
+@router.post("/coffrets", response_model=CoffretCreateResult, status_code=201)
+def post_coffret(coffret_data: CoffretCreate, db: Session = Depends(get_db)) -> CoffretCreateResult:
+    logger.info("Creating coffret %s -> %s", coffret_data.code_debut, coffret_data.code_fin)
+    return create_coffret(db, coffret_data)
 
 
 @router.get("/coffrets/{coffret_id}", response_model=list[PigeRead])
@@ -89,6 +84,12 @@ def get_piges_by_coffret(
 
     logger.info("Listing piges for coffret_id=%s", coffret_id)
     return get_piges_for_coffret(db, coffret_id)
+
+
+@router.delete("/coffrets/{coffret_id}", status_code=204)
+def remove_coffret(coffret_id: int, db: Session = Depends(get_db)) -> None:
+    logger.info("Deleting coffret_id=%s", coffret_id)
+    delete_coffret(db, coffret_id)
 
 
 @router.post(

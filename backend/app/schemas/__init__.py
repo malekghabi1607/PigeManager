@@ -1,4 +1,4 @@
-from app.schemas.coffret import CoffretRead
+from app.schemas.coffret import CoffretCreate, CoffretCreateResult, CoffretRead
 from app.schemas.controle import (
     BesoinRead,
     ControleCreate,
@@ -13,6 +13,8 @@ from app.schemas.utilisateur import UtilisateurCreate, UtilisateurRead
 
 __all__ = [
     "BesoinRead",
+    "CoffretCreate",
+    "CoffretCreateResult",
     "CoffretRead",
     "ControleCreate",
     "ControleRead",
