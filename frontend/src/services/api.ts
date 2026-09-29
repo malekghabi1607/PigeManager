@@ -9,6 +9,7 @@ import type {
   ExportLot,
   HistoriqueControle,
   Pige,
+  ResetResultat,
   Utilisateur,
   UtilisateurPayload,
 } from '../types/api'
@@ -101,4 +102,15 @@ export function createExport(utilisateurId: number): Promise<ExportLot> {
 
 export function getExportUrl(lotId: number, format: ExportFormat): string {
   return `${API_BASE_URL}/exports/${lotId}/${format}`
+}
+
+export function getResetApercu(): Promise<ResetResultat> {
+  return request<ResetResultat>('/reset/apercu')
+}
+
+export function resetPiges(utilisateurId: number): Promise<ResetResultat> {
+  return request<ResetResultat>('/reset', {
+    method: 'POST',
+    body: JSON.stringify({ utilisateur_id: utilisateurId }),
+  })
 }

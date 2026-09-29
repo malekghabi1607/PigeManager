@@ -91,6 +91,7 @@ function App() {
       <AppShell activeView={view} utilisateur={utilisateur} onNavigate={navigate} onChangeUtilisateur={changeUtilisateur}>
         <Accueil
           coffrets={coffrets}
+          utilisateur={utilisateur}
           isLoading={isLoading}
           error={error}
           onSelectCoffret={openCoffret}

@@ -57,6 +57,15 @@ class BesoinGroupeRead(BaseModel):
     detail: list[BesoinDetailRead]
 
 
+class ResetCreate(BaseModel):
+    utilisateur_id: int
+
+
+class ResetRead(BaseModel):
+    piges: int
+    pieces: int
+
+
 class ExportCreate(BaseModel):
     utilisateur_id: int
 

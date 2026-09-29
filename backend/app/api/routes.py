@@ -19,6 +19,8 @@ from app.schemas import (
     ExportLotRead,
     HistoriqueControleRead,
     PigeRead,
+    ResetCreate,
+    ResetRead,
     UtilisateurCreate,
     UtilisateurRead,
 )
@@ -36,6 +38,8 @@ from app.services import (
     get_besoins_groupes,
     get_historique_controles,
     get_piges_for_coffret,
+    get_reset_apercu,
+    reset_piges,
     list_utilisateurs,
     save_controle,
 )
@@ -155,3 +159,14 @@ def export_lot_pdf(lot_id: int, db: Session = Depends(get_db)) -> StreamingRespo
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="pigecontrol_commande_{lot_id}.pdf"'},
     )
+
+
+@router.get("/reset/apercu", response_model=ResetRead)
+def get_reset_preview(db: Session = Depends(get_db)) -> ResetRead:
+    return get_reset_apercu(db)
+
+
+@router.post("/reset", response_model=ResetRead)
+def post_reset(reset_data: ResetCreate, db: Session = Depends(get_db)) -> ResetRead:
+    logger.info("Resetting all piges for utilisateur_id=%s", reset_data.utilisateur_id)
+    return reset_piges(db, reset_data.utilisateur_id)

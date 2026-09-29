@@ -386,7 +386,8 @@ button:disabled {
   margin: 0 0 20px;
 }
 
-.search-row .primary-button {
+.search-row .primary-button,
+.search-row .danger-button {
   min-height: 46px;
 }
 
@@ -1080,8 +1081,15 @@ tr.detail-row td {
     flex-wrap: wrap;
   }
 
-  .search-row .primary-button {
+  /* Recherche en haut, puis Reset et Ajouter cote a cote. */
+  .search-row .search-bar {
     flex: 1 1 100%;
+    order: -1;
+  }
+
+  .search-row .primary-button,
+  .search-row .danger-button {
+    flex: 1 1 0;
   }
 
   .modal-row {

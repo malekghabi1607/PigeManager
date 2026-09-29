@@ -9,6 +9,8 @@ from app.schemas.controle import (
     ExportLigneRead,
     ExportLotRead,
     HistoriqueControleRead,
+    ResetCreate,
+    ResetRead,
 )
 from app.schemas.pige import PigeRead
 from app.schemas.utilisateur import UtilisateurCreate, UtilisateurRead
@@ -27,6 +29,8 @@ __all__ = [
     "ExportLotRead",
     "HistoriqueControleRead",
     "PigeRead",
+    "ResetCreate",
+    "ResetRead",
     "UtilisateurCreate",
     "UtilisateurRead",
 ]

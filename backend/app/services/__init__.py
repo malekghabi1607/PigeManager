@@ -10,6 +10,7 @@ from app.services.exports import (
 )
 from app.services.historique import get_historique_controles
 from app.services.piges import get_piges_for_coffret
+from app.services.reset import get_reset_apercu, reset_piges
 from app.services.utilisateurs import connect_utilisateur, list_utilisateurs
 
 __all__ = [
@@ -26,6 +27,8 @@ __all__ = [
     "get_besoins_rows",
     "get_historique_controles",
     "get_piges_for_coffret",
+    "get_reset_apercu",
+    "reset_piges",
     "connect_utilisateur",
     "list_utilisateurs",
     "save_controle",

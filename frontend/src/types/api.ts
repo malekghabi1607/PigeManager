@@ -58,6 +58,12 @@ export type BesoinGroupe = {
   detail: BesoinDetail[]
 }
 
+// Piges dont le dernier controle est superieur a 0, et leurs pieces manquantes.
+export type ResetResultat = {
+  piges: number
+  pieces: number
+}
+
 export type ExportFormat = 'excel' | 'pdf'
 
 export type ExportLigne = {

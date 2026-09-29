@@ -1,21 +1,24 @@
 import { useMemo, useState } from 'react'
 import coffretImage from '../assets/coffret.svg'
 import AjoutCoffretDialog from '../components/AjoutCoffretDialog'
-import type { Coffret } from '../types/api'
+import ResetDialog from '../components/ResetDialog'
+import type { Coffret, Utilisateur } from '../types/api'
 import { Button, PageHeader, StateMessage, useToast } from '../components/ui'
 import { afficherNomCoffret, decouperNomCoffret, rechercherCoffrets } from '../utils/rechercheCoffret'
 
 type AccueilProps = {
   coffrets: Coffret[]
+  utilisateur: Utilisateur
   isLoading: boolean
   error?: string
   onSelectCoffret: (coffret: Coffret) => void
   onCoffretCree: (coffret: Coffret) => void
 }
 
-function Accueil({ coffrets, isLoading, error, onSelectCoffret, onCoffretCree }: AccueilProps) {
+function Accueil({ coffrets, utilisateur, isLoading, error, onSelectCoffret, onCoffretCree }: AccueilProps) {
   const [search, setSearch] = useState('')
   const [isAjoutOpen, setIsAjoutOpen] = useState(false)
+  const [isResetOpen, setIsResetOpen] = useState(false)
   const { toastElement, showToast } = useToast()
   const filteredCoffrets = useMemo(
     () => rechercherCoffrets(coffrets, search),
@@ -30,6 +33,7 @@ function Accueil({ coffrets, isLoading, error, onSelectCoffret, onCoffretCree }:
       <StateMessage variant="error">{error}</StateMessage>
 
       <div className="search-row">
+        <Button variant="danger" onClick={() => setIsResetOpen(true)}>Reset</Button>
         <div className="search-bar">
           <input
             value={search}
@@ -73,6 +77,15 @@ function Accueil({ coffrets, isLoading, error, onSelectCoffret, onCoffretCree }:
         onCree={(coffret) => {
           onCoffretCree(coffret)
           showToast(`${afficherNomCoffret(coffret.nom)} créé : ${coffret.total_piges} piges.`)
+        }}
+      />
+      <ResetDialog
+        open={isResetOpen}
+        utilisateurId={utilisateur.id}
+        onClose={() => setIsResetOpen(false)}
+        onReset={(resultat) => {
+          setIsResetOpen(false)
+          showToast(`${resultat.piges} ${resultat.piges > 1 ? 'piges remises' : 'pige remise'} à zéro.`)
         }}
       />
       {toastElement}
