@@ -3,5 +3,7 @@ openpyxl
 pandas
 psycopg[binary]>=3.2,<4
 reportlab
+# Fuseaux horaires (Europe/Paris) : absents de l'image Docker slim.
+tzdata
 sqlalchemy
 uvicorn[standard]

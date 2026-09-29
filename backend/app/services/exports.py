@@ -1,6 +1,8 @@
+import threading
 from dataclasses import dataclass
 from datetime import timezone
 from io import BytesIO
+from zoneinfo import ZoneInfo
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -8,13 +10,22 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.errors import bad_request, not_found
 from app.models import ExportLigne, ExportLot, Pige, Utilisateur
 from app.schemas import ExportLigneRead, ExportLotRead
 from app.services.besoins import get_besoins_rows, ordre_coffret, valeur_code
+
+
+FUSEAU_ATELIER = ZoneInfo("Europe/Paris")
+
+# Deux exports simultanes ne doivent pas commander deux fois les memes besoins.
+# Le verrou de processus suffit en local (SQLite, un seul processus) ; PostgreSQL
+# prend en plus un verrou de transaction, valable entre plusieurs processus.
+_verrou_export = threading.Lock()
+VERROU_EXPORT_POSTGRES = 740_512
 
 
 def _lot_query():
@@ -46,20 +57,27 @@ def _lot_to_read(lot: ExportLot) -> ExportLotRead:
 
 
 def create_export_lot(db: Session, utilisateur_id: int) -> ExportLotRead:
-    utilisateur = db.get(Utilisateur, utilisateur_id)
-    if utilisateur is None:
-        raise not_found("Utilisateur introuvable")
+    with _verrou_export:
+        if db.get_bind().dialect.name == "postgresql":
+            # Libere automatiquement au commit ou au rollback de la transaction.
+            db.execute(text("SELECT pg_advisory_xact_lock(:cle)"), {"cle": VERROU_EXPORT_POSTGRES})
 
-    besoins = get_besoins_rows(db)
-    if not besoins:
-        raise bad_request("Aucune nouvelle piece a exporter")
+        utilisateur = db.get(Utilisateur, utilisateur_id)
+        if utilisateur is None:
+            db.rollback()
+            raise not_found("Utilisateur introuvable")
 
-    lot = ExportLot(
-        utilisateur_id=utilisateur.id,
-        lignes=[ExportLigne(pige_id=row.pige_id, quantite=row.quantite_a_commander) for row in besoins],
-    )
-    db.add(lot)
-    db.commit()
+        besoins = get_besoins_rows(db)
+        if not besoins:
+            db.rollback()
+            raise bad_request("Aucune nouvelle piece a exporter")
+
+        lot = ExportLot(
+            utilisateur_id=utilisateur.id,
+            lignes=[ExportLigne(pige_id=row.pige_id, quantite=row.quantite_a_commander) for row in besoins],
+        )
+        db.add(lot)
+        db.commit()
     return get_export_lot(db, lot.id)
 
 
@@ -99,7 +117,7 @@ def lignes_par_code(lot: ExportLotRead) -> list[LigneCommande]:
 def _entete(lot: ExportLotRead) -> tuple[str, str]:
     return (
         f"PigeControl - Commande n°{lot.id}",
-        lot.date.astimezone().strftime("Export généré le %d/%m/%Y à %H:%M") + f" par {lot.utilisateur_nom}",
+        lot.date.astimezone(FUSEAU_ATELIER).strftime("Export généré le %d/%m/%Y à %H:%M") + f" par {lot.utilisateur_nom}",
     )
 
 
