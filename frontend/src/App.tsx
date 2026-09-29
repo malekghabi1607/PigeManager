@@ -78,7 +78,6 @@ function App() {
             coffret={selectedCoffret}
             utilisateur={utilisateur}
             onBack={() => setView('accueil')}
-            onOpenBesoins={() => setView('besoins')}
           />
         </AppShell>
       </>
@@ -93,7 +92,6 @@ function App() {
           isLoading={isLoading}
           error={error}
           onSelectCoffret={openCoffret}
-          onOpenHistorique={() => setView('historique')}
         />
       </AppShell>
     </>

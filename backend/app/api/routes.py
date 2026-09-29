@@ -2,7 +2,7 @@ import logging
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.errors import not_found
@@ -61,15 +61,21 @@ def login_utilisateur(
 def get_coffrets(db: Session = Depends(get_db)) -> list[CoffretRead]:
     logger.info("Listing coffrets")
     statement = (
-        select(Coffret.id, Coffret.nom, func.count(Pige.id).label("total_piges"))
+        select(Coffret.id, Coffret.nom, Pige.code)
         .outerjoin(Coffret.piges)
-        .group_by(Coffret.id, Coffret.nom)
         .order_by(Coffret.id)
     )
-    return [
-        CoffretRead(id=row.id, nom=row.nom, total_piges=row.total_piges)
-        for row in db.execute(statement).all()
-    ]
+    coffrets: dict[int, CoffretRead] = {}
+    for row in db.execute(statement):
+        if row.id not in coffrets:
+            coffrets[row.id] = CoffretRead(id=row.id, nom=row.nom)
+        coffret = coffrets[row.id]
+        if row.code is not None:
+            code = float(row.code.replace(",", "."))
+            coffret.total_piges += 1
+            coffret.code_debut = code if coffret.code_debut is None else min(coffret.code_debut, code)
+            coffret.code_fin = code if coffret.code_fin is None else max(coffret.code_fin, code)
+    return list(coffrets.values())
 
 
 @router.get("/coffrets/{coffret_id}", response_model=list[PigeRead])

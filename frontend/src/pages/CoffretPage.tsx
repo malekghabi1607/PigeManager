@@ -11,10 +11,9 @@ type CoffretPageProps = {
   coffret: Coffret
   utilisateur: Utilisateur
   onBack: () => void
-  onOpenBesoins: () => void
 }
 
-function CoffretPage({ coffret, utilisateur, onBack, onOpenBesoins }: CoffretPageProps) {
+function CoffretPage({ coffret, utilisateur, onBack }: CoffretPageProps) {
   const [piges, setPiges] = useState<Pige[]>([])
   const [selectedPigeId, setSelectedPigeId] = useState<number>()
   const [isLoading, setIsLoading] = useState(true)
@@ -99,7 +98,6 @@ function CoffretPage({ coffret, utilisateur, onBack, onOpenBesoins }: CoffretPag
         eyebrow="Coffret"
         title={coffret.nom}
         left={<Button variant="secondary" onClick={onBack}>Retour</Button>}
-        right={<Button variant="primary" onClick={onOpenBesoins}>Besoins</Button>}
       />
 
       <StateMessage>{isLoading ? 'Chargement de la grille...' : undefined}</StateMessage>

@@ -2,6 +2,8 @@ export type Coffret = {
   id: number
   nom: string
   total_piges: number
+  code_debut: number | null
+  code_fin: number | null
 }
 
 export type Pige = {

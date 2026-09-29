@@ -7,3 +7,5 @@ class CoffretRead(BaseModel):
     id: int
     nom: str
     total_piges: int = 0
+    code_debut: float | None = None
+    code_fin: float | None = None

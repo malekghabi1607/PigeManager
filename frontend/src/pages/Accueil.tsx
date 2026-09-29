@@ -1,20 +1,20 @@
 import { useMemo, useState } from 'react'
 import coffretImage from '../assets/coffret.svg'
 import type { Coffret } from '../types/api'
-import { Button, PageHeader, StateMessage } from '../components/ui'
+import { PageHeader, StateMessage } from '../components/ui'
+import { nomCourtCoffret, rechercherCoffrets } from '../utils/rechercheCoffret'
 
 type AccueilProps = {
   coffrets: Coffret[]
   isLoading: boolean
   error?: string
   onSelectCoffret: (coffret: Coffret) => void
-  onOpenHistorique: () => void
 }
 
-function Accueil({ coffrets, isLoading, error, onSelectCoffret, onOpenHistorique }: AccueilProps) {
+function Accueil({ coffrets, isLoading, error, onSelectCoffret }: AccueilProps) {
   const [search, setSearch] = useState('')
   const filteredCoffrets = useMemo(
-    () => coffrets.filter((coffret) => coffret.nom.toLowerCase().includes(search.toLowerCase())),
+    () => rechercherCoffrets(coffrets, search),
     [coffrets, search],
   )
 
@@ -23,7 +23,6 @@ function Accueil({ coffrets, isLoading, error, onSelectCoffret, onOpenHistorique
       <PageHeader
         eyebrow="PigeControl"
         title="Selection du coffret"
-        right={<Button variant="secondary" onClick={onOpenHistorique}>Historique</Button>}
       />
 
       <StateMessage>{isLoading ? 'Chargement des coffrets...' : undefined}</StateMessage>
@@ -33,23 +32,30 @@ function Accueil({ coffrets, isLoading, error, onSelectCoffret, onOpenHistorique
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Rechercher un coffret..."
+          aria-label="Rechercher un coffret par nom, numéro ou plage"
+          placeholder="Ex. : 1 à 2, 10 à 10.5, 12.34…"
         />
         <span>⌕</span>
       </div>
 
+      <StateMessage>
+        {!isLoading && !error && filteredCoffrets.length === 0 ? 'Aucun coffret ne correspond à votre recherche.' : undefined}
+      </StateMessage>
+
       <div className="coffret-list">
         {filteredCoffrets.map((coffret) => (
-          <article className="coffret-card" key={coffret.id}>
+          <button
+            type="button"
+            className="coffret-card"
+            key={coffret.id}
+            title={coffret.nom}
+            aria-label={`Ouvrir ${coffret.nom}, ${coffret.total_piges} pièces`}
+            onClick={() => onSelectCoffret(coffret)}
+          >
             <img src={coffretImage} alt="" />
-            <div>
-              <h2>{coffret.nom}</h2>
-              <p>{coffret.total_piges} pieces</p>
-            </div>
-            <Button variant="secondary" onClick={() => onSelectCoffret(coffret)}>
-              Ouvrir
-            </Button>
-          </article>
+            <strong className="coffret-card-title">{nomCourtCoffret(coffret.nom)}</strong>
+            <span className="coffret-card-count">{coffret.total_piges} pièces</span>
+          </button>
         ))}
       </div>
     </main>
