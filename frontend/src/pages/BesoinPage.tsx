@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useState } from 'react'
 import QuantiteSelector from '../components/QuantiteSelector'
-import { Button, PageHeader, StateMessage, useToast } from '../components/ui'
+import { Button, IconeTelecharger, PageHeader, StateMessage, useToast } from '../components/ui'
 import { createControle, createExport, getBesoinsGroupes, getExportFichier, getExports } from '../services/api'
 import { useDebouncedSave } from '../hooks/useDebouncedSave'
 import type { BesoinGroupe, ExportFormat, ExportLigne, ExportLot, Utilisateur } from '../types/api'
@@ -39,6 +39,59 @@ function lignesParCode(lignes: ExportLigne[]) {
     entree.coffrets.sort((a, b) => ordreCoffret(a) - ordreCoffret(b))
   }
   return [...parCode.values()].sort((a, b) => valeurCode(a.code) - valeurCode(b.code))
+}
+
+// Une ligne par commande exportee ; les pieces s'affichent sous la ligne a la demande.
+function LigneExport({ lot, onTelecharger }: { lot: ExportLot; onTelecharger: (format: ExportFormat) => void }) {
+  const [ouvert, setOuvert] = useState(false)
+  const lignes = lignesParCode(lot.lignes)
+  const pieces = lignes.reduce((sum, ligne) => sum + ligne.quantite, 0)
+  const basculer = () => setOuvert((valeur) => !valeur)
+  // Les boutons de telechargement ne doivent pas aussi ouvrir le detail.
+  const telecharger = (event: React.MouseEvent, format: ExportFormat) => {
+    event.stopPropagation()
+    onTelecharger(format)
+  }
+
+  return (
+    <Fragment>
+      <tr className={`ligne-cliquable${ouvert ? ' is-open' : ''}`} onClick={basculer}>
+        <td><strong>n°{lot.id}</strong></td>
+        <td className="cellule-date">{dateFormat.format(new Date(lot.date))}</td>
+        <td className="col-par">{lot.utilisateur_nom}</td>
+        <td>{lignes.length}</td>
+        <td>{pieces}</td>
+        <td>
+          <div className="cellule-fichiers">
+            <Button variant="secondary" className="bouton-petit" onClick={(event) => telecharger(event, 'excel')} aria-label={`Télécharger la commande n°${lot.id} en Excel`}>
+              <IconeTelecharger /> Excel
+            </Button>
+            <Button variant="secondary" className="bouton-petit" onClick={(event) => telecharger(event, 'pdf')} aria-label={`Télécharger la commande n°${lot.id} en PDF`}>
+              <IconeTelecharger /> PDF
+            </Button>
+          </div>
+        </td>
+        <td className="cellule-fleche">
+          <button type="button" className="fleche-button" aria-expanded={ouvert} aria-label="Voir les pièces" onClick={(event) => { event.stopPropagation(); basculer() }}>
+            {ouvert ? '▾' : '▸'}
+          </button>
+        </td>
+      </tr>
+      {ouvert && (
+        <tr className="detail-row">
+          <td colSpan={7}>
+            <div className="passage-chips">
+              {lignes.map((ligne) => (
+                <span className="pige-chip" key={ligne.code} title={ligne.coffrets.join(', ')}>
+                  {ligne.code.replace(',', '.')} <strong>×{ligne.quantite}</strong>
+                </span>
+              ))}
+            </div>
+          </td>
+        </tr>
+      )}
+    </Fragment>
+  )
 }
 
 type BesoinPageProps = {
@@ -271,35 +324,27 @@ function BesoinPage({ utilisateur, onBack }: BesoinPageProps) {
             Exports précédents
             <span>{exports.length} {pluriel(exports.length, 'export')}</span>
           </h2>
-          {exports.map((lot) => {
-            const lignes = lignesParCode(lot.lignes)
-            const pieces = lignes.reduce((sum, ligne) => sum + ligne.quantite, 0)
-            return (
-              <article className="passage-card" key={lot.id}>
-                <header className="passage-header">
-                  <h3>Commande n°{lot.id}</h3>
-                  <span className="passage-meta">
-                    {dateFormat.format(new Date(lot.date))} · {lot.utilisateur_nom}
-                  </span>
-                </header>
-                <p className="passage-summary">
-                  <strong>{lignes.length}</strong> {pluriel(lignes.length, 'pige')} ·{' '}
-                  <strong>{pieces}</strong> {pluriel(pieces, 'pièce')}
-                </p>
-                <div className="passage-chips">
-                  {lignes.map((ligne) => (
-                    <span className="pige-chip" key={ligne.code} title={ligne.coffrets.join(', ')}>
-                      {ligne.code.replace(',', '.')} <strong>×{ligne.quantite}</strong>
-                    </span>
-                  ))}
-                </div>
-                <div className="passage-actions">
-                  <Button variant="secondary" onClick={() => retelecharger(lot.id, 'excel')}>Excel</Button>
-                  <Button variant="secondary" onClick={() => retelecharger(lot.id, 'pdf')}>PDF</Button>
-                </div>
-              </article>
-            )
-          })}
+          {/* Seul le tableau defile ; ses titres de colonnes restent visibles. */}
+          <div className="table-panel table-scroll exports-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Commande</th>
+                  <th>Date</th>
+                  <th className="col-par">Par</th>
+                  <th>Piges</th>
+                  <th>Pièces</th>
+                  <th>Fichiers</th>
+                  <th aria-label="Détail"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {exports.map((lot) => (
+                  <LigneExport key={lot.id} lot={lot} onTelecharger={(format) => retelecharger(lot.id, format)} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
       {toastElement}

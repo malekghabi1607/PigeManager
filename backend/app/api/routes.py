@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -18,7 +18,7 @@ from app.schemas import (
     ControleRead,
     ExportCreate,
     ExportLotRead,
-    HistoriqueControleRead,
+    HistoriqueRead,
     PigeRead,
     ResetCreate,
     ResetRead,
@@ -125,10 +125,13 @@ def list_besoins_groupes(db: Session = Depends(get_db)) -> list[BesoinGroupeRead
     return get_besoins_groupes(db)
 
 
-@router.get("/historique", response_model=list[HistoriqueControleRead])
-def list_historique(db: Session = Depends(get_db)) -> list[HistoriqueControleRead]:
+@router.get("/historique", response_model=HistoriqueRead)
+def list_historique(
+    jours: int = Query(default=7, ge=1, le=3650),
+    db: Session = Depends(get_db),
+) -> HistoriqueRead:
     logger.info("Listing controle history")
-    return get_historique_controles(db)
+    return get_historique_controles(db, jours)
 
 
 @router.get("/exports", response_model=list[ExportLotRead])

@@ -7,7 +7,7 @@ import type {
   ControlePayload,
   ExportFormat,
   ExportLot,
-  HistoriqueControle,
+  Historique,
   Pige,
   ResetResultat,
   Utilisateur,
@@ -133,8 +133,8 @@ export function getBesoinsGroupes(): Promise<BesoinGroupe[]> {
   return request<BesoinGroupe[]>('/besoins/groupes')
 }
 
-export function getHistorique(): Promise<HistoriqueControle[]> {
-  return request<HistoriqueControle[]>('/historique')
+export function getHistorique(jours: number): Promise<Historique> {
+  return request<Historique>(`/historique?jours=${jours}`)
 }
 
 export function getExports(): Promise<ExportLot[]> {

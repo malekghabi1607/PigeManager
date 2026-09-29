@@ -95,9 +95,16 @@ class HistoriqueControleRead(BaseModel):
     coffret_nom: str
     code_pige: str
     statut: str
+    quantite_avant: int
     quantite_manquante: int
     date: datetime
 
     @field_serializer("date")
     def serialize_date(self, value: datetime) -> str:
         return serialize_utc_datetime(value)
+
+
+class HistoriqueRead(BaseModel):
+    controles: list[HistoriqueControleRead]
+    jours: int
+    plus_anciens: bool

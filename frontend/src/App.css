@@ -273,8 +273,7 @@ button:disabled {
 .table-panel,
 .grid-panel,
 .stats-panel article,
-.login-panel,
-.passage-card {
+.login-panel {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
@@ -326,9 +325,12 @@ button:disabled {
   margin: 0 0 20px;
 }
 
-.search-row .primary-button,
-.search-row .danger-button {
+/* Bouton carre avec une seule icone (Reset, Ajouter, Supprimer). */
+.icon-only {
+  width: 46px;
   min-height: 46px;
+  padding: 0;
+  flex: none;
 }
 
 .search-bar {
@@ -700,6 +702,115 @@ button:disabled {
   overflow-x: auto;
 }
 
+/* Tableau a defilement propre : la page reste fixe, les titres de colonnes restent visibles. */
+.table-scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Page a hauteur d'ecran : le tableau prend la place restante et defile seul. */
+.screen-fixe {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+}
+
+.screen-fixe > * {
+  flex: none;
+}
+
+.screen-fixe > .historique-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.exports-scroll {
+  max-height: min(420px, 60dvh);
+}
+
+.table-scroll th,
+.table-scroll td {
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+
+tr.ligne-cliquable {
+  cursor: pointer;
+}
+
+tr.ligne-cliquable:hover td,
+tr.ligne-cliquable.is-open td {
+  background: var(--primary-soft);
+}
+
+tr.ligne-cliquable.is-open td {
+  border-bottom-color: transparent;
+}
+
+.cellule-date span,
+.cellule-note {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.cellule-vide {
+  color: var(--border);
+}
+
+.cellule-fleche {
+  width: 44px;
+  text-align: right;
+}
+
+.fleche-button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.fleche-button:hover {
+  color: var(--primary);
+}
+
+.cellule-fichiers {
+  display: flex;
+  gap: 6px;
+}
+
+.bouton-petit {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.bouton-petit svg {
+  width: 16px;
+  height: 16px;
+}
+
+.table-scroll .detail-row td {
+  white-space: normal;
+}
+
+.detail-contenu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .table-panel table {
   width: 100%;
   border-collapse: collapse;
@@ -848,48 +959,16 @@ tr.detail-row td {
   font-weight: 600;
 }
 
-.history-list > section:first-child .history-day-title {
-  margin-top: 0;
-}
-
 .history-day-title span {
   color: var(--text-muted);
   font-size: 13px;
   font-weight: 400;
 }
 
-.passage-card {
-  margin-bottom: 12px;
-  padding: 16px;
-}
-
-.passage-header {
+.history-more {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 16px;
-}
-
-.passage-header h3 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.passage-meta {
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-.passage-summary {
-  margin: 6px 0 12px;
-  color: var(--text-muted);
-}
-
-.passage-summary strong {
-  color: var(--text);
-  font-weight: 600;
+  justify-content: center;
+  margin: 20px 0 8px;
 }
 
 .passage-ok {
@@ -922,39 +1001,6 @@ tr.detail-row td {
 .pige-chip.is-ok {
   color: var(--ok);
   background: var(--ok-soft);
-}
-
-.passage-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
-}
-
-.passage-actions .secondary-button {
-  min-height: 36px;
-  padding: 0 12px;
-  font-size: 13px;
-}
-
-.passage-detail {
-  width: 100%;
-  margin-top: 14px;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.passage-detail th,
-.passage-detail td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-  text-align: left;
-}
-
-.passage-detail th {
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 600;
 }
 
 .sr-only {
@@ -1006,23 +1052,23 @@ tr.detail-row td {
 /* ---------- Telephone ---------- */
 
 @media (max-width: 640px) {
-  .search-row {
-    flex-wrap: wrap;
-  }
-
-  /* Recherche en haut, puis Reset et Ajouter cote a cote. */
-  .search-row .search-bar {
-    flex: 1 1 100%;
-    order: -1;
-  }
-
-  .search-row .primary-button,
-  .search-row .danger-button {
-    flex: 1 1 0;
-  }
-
   .modal-row {
     grid-template-columns: 1fr 1fr;
+  }
+
+  /* Sur telephone : moins de colonnes, et place pour la barre de menu du bas. */
+  .col-par {
+    display: none;
+  }
+
+  /* La barre de menu du bas (64 px) prend le bas de l'ecran. */
+  .screen-fixe {
+    height: calc(100dvh - 64px - env(safe-area-inset-bottom));
+  }
+
+  .table-scroll th,
+  .table-scroll td {
+    padding: 8px 10px;
   }
 
   .coffret-list {

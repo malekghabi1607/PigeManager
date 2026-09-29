@@ -97,6 +97,14 @@ export type HistoriqueControle = {
   coffret_nom: string
   code_pige: string
   statut: string
+  // Quantite de la pige juste avant ce controle (0 pour le premier controle).
+  quantite_avant: number
   quantite_manquante: number
   date: string
+}
+
+export type Historique = {
+  controles: HistoriqueControle[]
+  jours: number
+  plus_anciens: boolean
 }

@@ -9,6 +9,7 @@ from app.schemas.controle import (
     ExportLigneRead,
     ExportLotRead,
     HistoriqueControleRead,
+    HistoriqueRead,
     ResetCreate,
     ResetRead,
 )
@@ -28,6 +29,7 @@ __all__ = [
     "ExportLigneRead",
     "ExportLotRead",
     "HistoriqueControleRead",
+    "HistoriqueRead",
     "PigeRead",
     "ResetCreate",
     "ResetRead",
