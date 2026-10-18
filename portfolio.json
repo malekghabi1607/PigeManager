@@ -1,0 +1,50 @@
+{
+  "titleFr": "PigeManager",
+  "titleEn": "PigeManager",
+  "descriptionFr": "Application d'atelier pour contrôler les coffrets de piges de mesure et préparer les commandes de réapprovisionnement.",
+  "descriptionEn": "Workshop app to check gauge pin sets and prepare restocking orders.",
+  "longDescriptionFr": [
+    "PigeManager remplace un suivi sur fichier Excel par une application web utilisable sur ordinateur, tablette et téléphone. Chaque coffret s'affiche sous forme de grille fidèle à sa disposition réelle : un appui sur une case signale une pige manquante, et la sauvegarde est automatique.",
+    "La page « À commander » regroupe les pièces manquantes par dimension, tous coffrets confondus, puis génère un bon de commande en Excel ou en PDF. Une pièce exportée n'est plus recomptée dans les besoins suivants, et chaque contrôle reste consultable dans l'historique.",
+    "Le frontend est développé en React et TypeScript, l'API en FastAPI avec SQLAlchemy. L'ensemble est déployé dans une seule image Docker sur Render, avec une base PostgreSQL hébergée chez Neon, et l'accès est protégé par un code atelier."
+  ],
+  "longDescriptionEn": [
+    "PigeManager replaces an Excel-based tracking sheet with a web app that works on desktop, tablet and phone. Each gauge pin set is shown as a grid matching its physical layout: tapping a cell marks a missing pin, and changes are saved automatically.",
+    "The \"To order\" page groups missing pins by size across all sets and generates a purchase order as Excel or PDF. Exported pins are not counted again in later needs, and every check remains available in the history.",
+    "The frontend is built with React and TypeScript, the API with FastAPI and SQLAlchemy. Everything ships as a single Docker image on Render, with a PostgreSQL database hosted on Neon, and access is protected by a shared workshop code."
+  ],
+  "featuresFr": [
+    "Grille interactive par coffret, avec sauvegarde automatique des quantités manquantes",
+    "Création d'un coffret à partir d'une plage de dimensions (piges générées au pas de 0,01)",
+    "Besoins regroupés par code de pige, tous coffrets confondus",
+    "Export des commandes en Excel et en PDF, avec retéléchargement des commandes passées",
+    "Historique des contrôles regroupé par passage",
+    "Remise à zéro globale qui conserve l'historique",
+    "Accès protégé par un code atelier, interface adaptée au mobile"
+  ],
+  "featuresEn": [
+    "Interactive grid for each set, with automatic saving of missing quantities",
+    "Create a set from a size range (pins generated in 0.01 steps)",
+    "Needs grouped by pin size across all sets",
+    "Excel and PDF order exports, with re-download of past orders",
+    "Check history grouped by session",
+    "Global reset that keeps the history",
+    "Access protected by a workshop code, mobile-friendly interface"
+  ],
+  "challengesFr": [
+    "Ne jamais commander deux fois la même pièce : les quantités déjà exportées sont déduites, et un verrou PostgreSQL empêche deux exports simultanés",
+    "Garder un historique complet : chaque modification est enregistrée comme un nouveau contrôle, sans rien écraser",
+    "Ne perdre aucun clic sur mobile : les sauvegardes sont regroupées, envoyées dans l'ordre et forcées à la fermeture de la page",
+    "Héberger gratuitement une application accessible sans laisser de PC allumé (Render + Neon), sans jamais la publier sans protection"
+  ],
+  "challengesEn": [
+    "Never ordering the same pin twice: already exported quantities are subtracted, and a PostgreSQL lock prevents concurrent exports",
+    "Keeping a full history: every change is stored as a new check, nothing is overwritten",
+    "Losing no tap on mobile: saves are debounced, sent in order and flushed when the page closes",
+    "Free hosting reachable without a PC running (Render + Neon), with the app never published unprotected"
+  ],
+  "tech": ["React", "TypeScript", "Vite", "Python", "FastAPI", "SQLAlchemy", "PostgreSQL", "Docker", "Render"],
+  "liveUrl": "https://pigemanager.onrender.com",
+  "liveNoteFr": "Accès protégé par un code atelier. Hébergement gratuit : le premier chargement peut prendre quelques secondes.",
+  "liveNoteEn": "Access requires a workshop code. Free hosting: the first load may take a few seconds."
+}
