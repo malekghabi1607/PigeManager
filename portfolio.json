@@ -44,7 +44,7 @@
     "Free hosting reachable without a PC running (Render + Neon), with the app never published unprotected"
   ],
   "tech": ["React", "TypeScript", "Vite", "Python", "FastAPI", "SQLAlchemy", "PostgreSQL", "Docker", "Render"],
-  "image": "docs/accueil.png",
+  "image": "docs/cover.png",
   "gallery": ["docs/accueil.png", "docs/coffret.png", "docs/besoins.png"],
   "liveUrl": "https://pigemanager.onrender.com",
   "liveNoteFr": "Accès protégé par un code atelier. Hébergement gratuit : le premier chargement peut prendre quelques secondes.",
